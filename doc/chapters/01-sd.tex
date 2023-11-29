@@ -1,0 +1,40 @@
+\chapter{SD Card}
+The SD card is connected via SPI and is necessary for normal operation. If no SD-Card is present, no channels can be activated for control. 
+
+File Tree:
+\dirtree{%
+.1 /.
+.2 config/.
+.3 control.xml.
+.4 name <1-4>.
+.4 humidity threshold <1-4>.
+.4 state <1-4>.
+.4 log\_enable <1-4>.
+.3 wifi.xml.
+.4 Op-Mode <station/AP>.
+.4 SSID.
+.4 PassWD.
+.4 IP static <optional>.
+.2 log/.
+.3 plant1.log.
+.3 plant2.log.
+.3 plant3.log.
+.3 plant4.log.
+.3 error.log.
+}
+
+\vspace{0.5cm}
+\textbf{control.xml}
+
+Contains information about the channels and their oepration. Names, humidity thresholds and the states (enabled/disabled) are stored here for the ESP to act upon and to display in the web interface. The log\_enable keys can be used to enable or disable logging for this channel.\\
+Default is enabled, errors will always be logged. 
+
+\vspace{0.5cm}
+\textbf{wifi.xml}
+
+Contains all necessary information for wifi-usage, like SSID, password and if the ESP should be in station mode (client inside existing network), or in AccessPoint-Mode (creating its own network). Default is AP-Mode.
+
+\vspace{0.5cm}
+\textbf{Logfiles}
+
+If logging is enabled, the ADC-values (hourly) and watering-events will be logged. This way long-term data about the moisture and water usage can be obtained for further fine-tuning.

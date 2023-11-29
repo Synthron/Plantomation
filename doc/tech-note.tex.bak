@@ -1,0 +1,197 @@
+% --------------------------------------------------------------------
+% Technical Documentation
+% Marco Müller
+% --------------------------------------------------------------------
+
+\documentclass[11pt, a4paper, listof=numbered, captions=tableheading, headinclude, table, xcdraw]{scrreprt}
+
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{tikz}
+\usepackage{epigraph}
+%\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{textgreek}
+\usepackage[LGRgreek]{mathastext}
+\usepackage{array}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{helvet}
+\usepackage{scrhack}
+\renewcommand{\familydefault}{\sfdefault}
+
+\setlength{\emergencystretch}{\hsize}
+%\tolerance=9999
+
+\newcounter{divide}
+
+% für referenziertes Inhaltsverzeichnis
+\usepackage[hidelinks, hypertexnames=false]{hyperref}
+
+\usepackage{chngcntr}
+\counterwithin*{chapter}{divide}
+
+\renewcommand\epigraphflush{flushright}
+\renewcommand\epigraphsize{\normalsize}
+\setlength\epigraphwidth{0.7\textwidth}
+
+\definecolor{titlepagecolor1}{cmyk}{.82,.24,0,.11}
+\definecolor{titlepagecolor}{cmyk}{0,.33,.98,.2}
+
+\DeclareFixedFont{\titlefont}{T1}{ppl}{b}{it}{0.5in}
+
+\setlength{\parindent}{0pt}
+
+
+% Seitenränder festlegen
+\usepackage[top=1.5cm,bottom=1.5cm, includeheadfoot]{geometry}
+
+% Blindtext für Testzwecke
+%\usepackage{blindtext}
+%\usepackage{lipsum}
+
+% ---------------------------------------
+% Titeldefinition
+\newcommand{\Titel}{Dokumentation\\\vspace{.5mm}ModLab V1.0}
+\newcommand{\Caption}{Dokumentation über die Planung, den Bau, die Funktion und die Module des ModLabs}
+\newcommand{\SignateAuthor}{\textit{Erstellt mit \LaTeX}}
+\newcommand{\Stand}{\textit{Stand: \today}}
+% Sonstiges in titel.ltx und titel-meta.ltx
+% ---------------------------------------
+
+% Kopf- und Fußzeile
+\usepackage[automark]{scrlayer-scrpage}
+
+
+
+% --------------------------------------------------------------------
+% Titelblatt
+% --------------------------------------------------------------------
+
+\input{titel/titel-meta.tex}
+\begin{document}
+\input{titel/titel.tex}
+
+
+% --------------------------------------------------------------------
+% Verzeichnisse
+% --------------------------------------------------------------------
+
+\pagenumbering{Roman}
+\renewcommand{\thechapter}{\Roman{chapter}}
+
+\setcounter{tocdepth}{2} %Ausblenden von Subsections etc..
+\cohead[I. Inhaltsverzeichnis]{I. Inhaltsverzeichnis}
+\pagestyle{scrheadings}
+\tableofcontents 	\newpage
+\cohead[II. Tabellenverzeichnis]{II. Tabellenverzeichnis}
+\pagestyle{scrheadings}
+\listoffigures 		\newpage
+\cohead[III. Abbildungsverzeichnis]{III. Abbildungsverzeichnis}
+\pagestyle{scrheadings}
+\listoftables 		\newpage
+\pagenumbering{arabic}
+
+\stepcounter{divide}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+
+% Kopfzeilen erst nach den Verzeichnissen
+
+\lohead[\today]{\today}
+\cohead[ModLab V1.0]{ModLab V1.0}
+\rohead[Marco Müller]{Marco Müller}
+\pagestyle{scrheadings}
+
+% --------------------------------------------------------------------
+% Ab hier der Inhalt
+% --------------------------------------------------------------------
+
+\input{chapters/00-vorwort.tex} 			\newpage 	% Vorwort über die Entstehungsgeschichte
+\input{chapters/01-rack.tex}				\newpage 	% Der Rackaufbau und Erläuterung
+\input{chapters/02-fmas.tex}				\newpage 	% Kurze Ausführung zum FMAS
+\input{chapters/03-modlab.tex}				\newpage 	% Systemüberblick und Einführung ModLab, Wie es dazu kam
+\input{chapters/04-der_bus.tex} 			\newpage 	% Backplanebus erklärt
+\input{chapters/05-innen.tex}				\newpage 	% Geplantes Innenleben und Konzepte ?
+\input{chapters/06-busadapter.tex}			\newpage	% Busadapter und Terminierungen
+\input{chapters/06-hostbuscontroller.tex}	\newpage 	% Host-Bus-Controller
+\input{chapters/07-sym-lnt.tex}				\newpage 	% symmetrisches Linearnetzteil
+\input{chapters/08-power-lnt.tex}			\newpage 	% Leistungsnetzteil LM723
+\input{chapters/09-sym-snt.tex}				\newpage 	% symmetrisches Schaltnetzteil
+\input{chapters/10-power-snt.tex}			\newpage 	% Leistungsnetzteil SNT
+\input{chapters/11-fgen-analog.tex}			\newpage 	% Funktionsgenerator analoge Synthese
+\input{chapters/12-fgen-dds.tex}			\newpage 	% Funktionsgenerator Direkte Digitale Synthese
+\input{chapters/13-logic-probe.tex}			\newpage 	% Logik-Tester
+\input{chapters/14-speakers.tex}			\newpage 	% Lautsprecher-Einschub
+\input{chapters/15-dso.tex}					\newpage	% Digital-Oszilloskop
+\input{chapters/16-last.tex}				\newpage 	% Elektronische Last
+\input{chapters/17-diode-tester.tex}		\newpage	% Diodentester
+
+
+	
+
+% --------------------------------------------------------------------
+% abschließende Verzeichnisse
+% --------------------------------------------------------------------
+
+\pagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+\hrulefill\\
+\vspace{4mm}
+	\begin{HUGE}
+		\textbf{ANHANG}
+	\end{HUGE}\\
+\hrulefill
+\end{center}
+\vspace*{\fill}
+\newpage
+\pagestyle{plain}
+
+
+\appendix
+%\input{appendix/.ltx}		\newpage 	% Anhang
+%\input{appendix/.ltx}		\newpage 	% Anhang
+\chapter{Anhang Mainboard}
+\textcolor{blue}{\href{www.stm32duino.com}{www.stm32duino.com}}
+
+Damit den STM32 programmieren, dann sind viele Libraries schon fertig.
+Das Framework und der Bootloader sollten den STM32 nur unwesentlich ausbremsen da Taktung von 100MHz
+
+\chapter{Anhang Sym-LNT}			
+Spannungsteiler für Verstärkungsfaktor $\frac{1}{256}$ \\
+Oversampling für Spannungsvorgabe um auf 16bit zu kommen:\\
+$R2/R1= 2,564 = 10k/3k9 -> R2/R1 = 256,4 = 100k/390$
+
+\chapter{Anhang Power-LNT}
+\textcolor{blue}{\href{https://www.electronics-lab.com/project/ampstrike-battery-powered-bench-power-supply/}{Vorlage}}
+
+
+\chapter{Anhang Oszilloskop}
+Falls Ansatz mit DSO138:\\
+DC/DC-Wandler: R05P209S\\
+Liefert 220mA, mit 78L05 Spannung für ATmega erzeugen.\\
+DSO138 braucht 9V mit 120mA\\
+ADUM 1250 ARZ I2C-Isolator\\
+Trigger-LED für evtl als Sync-Ausgang?
+
+\chapter{Anhang Elekronische Last}
+V 7331G Profilkühlkörper (mindestens)\\
+40mm-Lüfter mit Steuerung dazu\\
+Lastkreis galvanisch getrennt!
+
+max. 5A
+
+100mOhm Shunt, 0,7V Ube = 1,2V\\
+5V auf 1,2V:\\
+Spannungsteiler 10k - (3k0 + 160)\\
+Teilungsverhältnis 10:3,16
+
+100mOhm Shunt, 1,5V Ube = 2V\\
+5V auf 2V:\\
+Spannungsteiler 12k - (1k2 + 6k8)\\
+Teilungsverhältnis 10:8
+
+% --------------------------------------------------------------------
+\end{document}

@@ -1,0 +1,17 @@
+\chapter{Prelude}
+
+Plantomation is a project started by a friend of mine who had the idea of a self-watering flower pot. After some deliberation and initial drafts he pulled out of it for personal reasons. 
+
+I now restart the project because I always forget to water my house plants and eventually they all die. This will be a thing of the past thanks to this small project!
+
+{\let\clearpage\relax \chapter{Introduction}}
+
+Plantomation is an automatic plant watering system based on ESP32. It can handle up to four different plants simultaneously and is fully configurable via a simple web interface.
+
+It uses capacitive soil moisture sensors to detect the humidity of the soil in the flower pot. Via a pump and valves, water can be delivered to the plants that need it. 
+
+By applying a threshold, the amount of water used for plants can be customized to the plants specific needs.
+
+The module is supplied by external 12V DC. Pumps and Valves are driven off 12V directly, moisture sensors are driven by 5V, the spillage sensor is connected to 3.3V.
+
+Config and Log files are saved on the SD card. 

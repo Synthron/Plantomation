@@ -1,0 +1,169 @@
+\makeatletter                       
+\def\printauthor{         
+    {\large \@author}}              
+\makeatother
+\author{
+    Synthron \\ 
+    \vspace*{12pt}
+    \texttt{admin@synthron.de}
+    }
+
+\renewcommand\epigraphflush{flushright}
+\renewcommand\epigraphsize{\normalsize}
+\setlength\epigraphwidth{0.7\textwidth}
+
+\definecolor{Green}{gray}{0.55}
+
+\newcommand\anglei{-45}
+\newcommand\angleii{-45}
+\newcommand\angleiii{-225}
+\newcommand\angleiv{135}
+
+\newcommand\titlepagedecoration{%
+\begin{tikzpicture}[remember picture,overlay,shorten >= -10pt]
+
+\coordinate (aux1) at ([yshift=-15pt]current page.north east);
+\coordinate (aux2) at ([yshift=-410pt]current page.north east);
+\coordinate (aux3) at ([xshift=-4.5cm]current page.north east);
+\coordinate (aux4) at ([yshift=-150pt]current page.north east);
+
+\begin{scope}[titlepagecolor!40,line width=12pt,rounded corners=12pt]
+\draw
+  (aux1) -- coordinate (a)
+  ++(225:5) --
+  ++(-45:5.1) coordinate (b);
+\draw[shorten <= -10pt]
+  (aux3) --
+  (a) --
+  (aux1);
+\draw[opacity=0.6,titlepagecolor,shorten <= -10pt]
+  (b) --
+  ++(225:2.2) --
+  ++(-45:2.2);
+\end{scope}
+\draw[titlepagecolor,line width=8pt,rounded corners=8pt,shorten <= -10pt]
+  (aux4) --
+  ++(225:0.8) --
+  ++(-45:0.8);
+\begin{scope}[titlepagecolor!70,line width=6pt,rounded corners=8pt]
+\draw[shorten <= -10pt]
+  (aux2) --
+  ++(225:3) coordinate[pos=0.45] (c) --
+  ++(-45:3.1);
+\draw
+  (aux2) --
+  (c) --
+  ++(135:2.5) --
+  ++(45:2.5) --
+  ++(-45:2.5) coordinate[pos=0.3] (d);   
+\draw 
+  (d) -- +(45:1);
+\end{scope}
+\end{tikzpicture}%
+}
+\newcommand\chapterdecoration{%
+\begin{tikzpicture}[remember picture,overlay,shorten >= -10pt]
+\coordinate (aux1) at ([yshift=-15pt]current page.north west);
+\coordinate (aux2) at ([yshift=-310pt]current page.north west);
+\coordinate (aux3) at ([xshift=4.5cm]current page.north west);
+\coordinate (aux4) at ([yshift=-150pt]current page.north west);
+\coordinate (aux5) at ([yshift=-535pt]current page.north west);
+\coordinate (aux6) at ([yshift=-660pt]current page.north west);
+\coordinate (aux7) at ([yshift=-630pt]current page.north west);
+\coordinate (aux8) at ([xshift=-16.5cm]current page.south east);
+\renewcommand\anglei{-135}
+\renewcommand\angleii{135}
+\renewcommand\angleiii{-45}
+\renewcommand\angleiv{45}
+
+
+
+\begin{scope}[titlepagecolor1!70,line width=6pt,rounded corners=8pt]
+\draw[shorten <= -10pt]
+  (aux2) --
+  ++(\angleiii:3) coordinate[pos=0.4] (d) --
+  ++(\anglei:3.1);
+
+\draw
+  (d) --
+  ++(\angleiii:.1) --
+ ++(\angleiii:1.7) --
+  ++(\anglei:1.5) --
+++(\angleiii:2.5) --
+++(\anglei:2.5) --
+++(\angleii:2) --
+++(\angleiii:1.3) --
+++(\anglei:1.3) 
+ 
+coordinate[pos=0.3] (c); 
+\begin{scope}[titlepagecolor1!40,line width=12pt,rounded corners=12pt]
+\draw
+  (aux7) -- coordinate (a)
+  ++(\angleiii:5) --
+  ++(\anglei:5.1) coordinate (b);
+\draw[shorten <= -10pt]
+  
+  (b) -- 
+++(\angleiv:2.5) --
+++(\angleiii:5) 
+  (aux8);
+\draw[opacity=0.6,titlepagecolor1,shorten <= -10pt]
+  (aux5) --
+  ++(\angleiii:2.2) --
+  ++(\anglei:2.2);
+\draw[titlepagecolor1,line width=8pt,rounded corners=8pt,shorten <= -10pt]
+  (aux6) --
+  ++(\angleiii:0.8) --
+  ++(\anglei:0.8);
+\end{scope}
+  
+\end{scope}
+\end{tikzpicture}%
+}
+
+% Old Code for reference
+%
+%
+%
+%\newcommand\titlepagedecoration{
+%\begin{tikzpicture}[remember picture,overlay,shorten >= -10pt]
+%
+%\coordinate (aux1) at ([yshift=-15pt]current page.north east);
+%\coordinate (aux2) at ([yshift=-410pt]current page.north east);
+%\coordinate (aux3) at ([xshift=-4.5cm]current page.north east);
+%\coordinate (aux4) at ([yshift=-150pt]current page.north east);
+%
+%\begin{scope}[titlepagecolor!40,line width=12pt,rounded corners=12pt]
+%\draw
+%  (aux1) -- coordinate (a)
+%  ++(225:5) --
+%  ++(-45:5.1) coordinate (b);
+%\draw[shorten <= -10pt]
+%  (aux3) --
+%  (a) --
+%  (aux1);
+%\draw[opacity=0.6,titlepagecolor,shorten <= -10pt]
+%  (b) --
+%  ++(225:2.2) --
+%  ++(-45:2.2);
+%\end{scope}
+%\draw[titlepagecolor,line width=8pt,rounded corners=8pt,shorten <= -10pt]
+%  (aux4) --
+%  ++(225:0.8) --
+%  ++(-45:0.8);
+%\begin{scope}[titlepagecolor!70,line width=6pt,rounded corners=8pt]
+%\draw[shorten <= -10pt]
+%  (aux2) --
+%  ++(225:3) coordinate[pos=0.45] (c) --
+%  ++(-45:3.1);
+%\draw
+%  (aux2) --
+%  (c) --
+%  ++(135:2.5) --
+%  ++(45:2.5) --
+%  ++(-45:2.5) coordinate[pos=0.3] (d);   
+%\draw 
+%  (d) -- +(45:1);
+%\end{scope}
+%\end{tikzpicture}
+%}

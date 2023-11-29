@@ -1,0 +1,137 @@
+% --------------------------------------------------------------------
+% Technical Documentation
+% Marco Müller
+% --------------------------------------------------------------------
+
+\documentclass[11pt, a4paper, listof=numbered, captions=tableheading, headinclude, table, xcdraw]{scrreprt}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{tikz}
+\usepackage{epigraph}
+%\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{textgreek}
+\usepackage[LGRgreek]{mathastext}
+\usepackage{array}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{helvet}
+\usepackage{scrhack}
+\usepackage{makecell}
+\usepackage{dirtree}
+\renewcommand{\familydefault}{\sfdefault}
+
+\setcounter{secnumdepth}{4} % give subsubsection numbers
+
+\setlength{\emergencystretch}{\hsize}
+\tolerance=9999
+
+\newcounter{divide}
+
+% für referenziertes Inhaltsverzeichnis
+\usepackage[hidelinks, hypertexnames=false]{hyperref}
+
+\usepackage{chngcntr}
+\counterwithin*{chapter}{divide}
+
+\renewcommand\epigraphflush{flushright}
+\renewcommand\epigraphsize{\normalsize}
+\setlength\epigraphwidth{0.7\textwidth}
+
+\definecolor{titlepagecolor1}{cmyk}{.82,.24,0,.11}
+\definecolor{titlepagecolor}{cmyk}{0,.33,.98,.2}
+
+\DeclareFixedFont{\titlefont}{T1}{ppl}{b}{it}{0.5in}
+
+\setlength{\parindent}{0pt}
+
+
+% Seitenränder festlegen
+\usepackage[top=1.5cm,bottom=1.5cm,right=2cm,left=2cm,includeheadfoot]{geometry}
+
+% ---------------------------------------
+% Titeldefinition
+\newcommand{\Titel}{Documentation\\\vspace{.5mm}Plantomation V1.0}
+\newcommand{\Caption}{Automatic Plant Watering System}
+\newcommand{\SignateAuthor}{\textit{Made with \LaTeX}}
+\newcommand{\Stand}{\textit{Compiled: \today}}
+% Sonstiges in titel.ltx und titel-meta.ltx
+% ---------------------------------------
+
+% Kopf- und Fußzeile
+\usepackage[automark]{scrlayer-scrpage}
+
+% --------------------------------------------------------------------
+% Titelblatt
+% --------------------------------------------------------------------
+
+\input{titel/titel-meta.tex}
+\begin{document}
+\input{titel/titel.tex}
+
+\KOMAoptions{parskip=half}
+% --------------------------------------------------------------------
+% Verzeichnisse
+% --------------------------------------------------------------------
+
+%\pagenumbering{Roman}
+%\renewcommand{\thechapter}{\Roman{chapter}}
+%
+%\setcounter{tocdepth}{1} %Ausblenden von Subsections etc..
+%\cohead[I Table Of Contents]{I Table Of Contents}
+%\pagestyle{scrheadings}
+%\tableofcontents 	\newpage
+%\cohead[II List of Tables]{II List of Tables}
+%\pagestyle{scrheadings}
+%\listoftables 		\newpage
+%\cohead[III List of Figures]{III List of Figures}
+%\pagestyle{scrheadings}
+%\listoffigures 		\newpage
+%\pagenumbering{arabic}
+%
+%\stepcounter{divide}
+%
+%\renewcommand{\thechapter}{\arabic{chapter}}
+
+% Kopfzeilen erst nach den Verzeichnissen
+
+\lohead[\today]{\today}
+\cohead[Plantomation]{Plantomation}
+\rohead[Synthron]{Synthron}
+\pagestyle{scrheadings}
+
+% --------------------------------------------------------------------
+% Ab hier der Inhalt
+% --------------------------------------------------------------------
+
+\input{chapters/00-intro.tex}  	
+\input{chapters/01-sd.tex}  	
+
+
+
+% --------------------------------------------------------------------
+% abschließende Verzeichnisse
+% --------------------------------------------------------------------
+%\newpage
+\appendix
+%\pagestyle{empty}
+%\vspace*{\fill}
+%\begin{center}
+%\hrulefill\\
+%\vspace{4mm}
+%	\begin{HUGE}
+%		\textbf{Addenda}
+%	\end{HUGE}\\
+%\hrulefill\\
+%\end{center}
+%\vspace*{\fill}
+%
+%\pagestyle{plain}
+{\let\clearpage\relax \chapter{Schematic}}
+\centering
+\includegraphics[angle=90,width=\textwidth]{../Hardware/Plantomation.pdf}
+
+% --------------------------------------------------------------------
+\end{document}

@@ -1,0 +1,8 @@
+-q
+-dNOPAUSE
+-sDEVICE=pbmraw
+-sOUTPUTFILE=logo_new.png.pbm
+-r600
+-g1772x1772
+tmp$.ps
+quit.ps
