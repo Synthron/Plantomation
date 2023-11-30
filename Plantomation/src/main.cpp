@@ -50,13 +50,20 @@ AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 #define spill 36
 #define set1 14
 #define set2 13
+//Defines for Webinterface
+#define SYS_OK 0
+#define SYS_SPILL 1
+#define SYS_FAIL 2
+#define SYS_SD 3
+#define SYS_EMPTY 4
+#define SYS_FATAL 255
 
 TaskHandle_t WebTasks;
 
 char html_out_buffer[200];
-String Name1, Name2, Name3, Name4;
-uint8_t checkstate1, checkstate2, checkstate3, checkstate4;
-uint8_t hume1, hume2, hume3, hume4;
+String Name1="", Name2="", Name3="", Name4="";
+uint8_t checkstate1=0, checkstate2=0, checkstate3=0, checkstate4=0;
+uint8_t hume1=0, hume2=0, hume3=0, hume4=0;
 
 // put function declarations here:
 void ota_start();
@@ -66,7 +73,7 @@ void server_handles();
 
 void notFound(AsyncWebServerRequest *request)
 {
-  request->send(404, "text/plain", "Not found");
+  request->send(418, "text/plain", "418: I am a teapot!");
 }
 
 void setup()
@@ -94,6 +101,7 @@ void setup()
       0);        /* pin task to core 0 */
   delay(500);
 
+//LED-pin on NodeMCU for testing purposes
   pinMode(2, OUTPUT);
 
   /* Pin Config for final board
@@ -131,11 +139,12 @@ void server_handles()
   server.onNotFound(notFound);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send_P(200, "text/html", MAIN_page); });
+  { 
+    request->send_P(200, "text/html", MAIN_page); 
+  });
 
-  server.on("/get", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
-    Serial.println();
+  server.on("/ch1", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
     if(request->hasParam("hume1"))
     {
       hume1 = request->getParam("hume1")->value().toInt();
@@ -147,8 +156,15 @@ void server_handles()
     if(request->hasParam("Name1"))
     {
       Name1 = request->getParam("Name1")->value();
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name1, hume1, checkstate1);
     } 
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name1, hume1, checkstate1);
+    Serial.println(html_out_buffer); 
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
+  });
+
+  server.on("/ch2", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
     if(request->hasParam("hume2"))
     {
       hume2 = request->getParam("hume2")->value().toInt();
@@ -160,8 +176,15 @@ void server_handles()
     if(request->hasParam("Name2"))
     {
       Name2 = request->getParam("Name2")->value();
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name2, hume2, checkstate2);
     } 
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name2, hume2, checkstate2);
+    Serial.println(html_out_buffer); 
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
+  });
+
+  server.on("/ch3", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
     if(request->hasParam("hume3"))
     {
       hume3 = request->getParam("hume3")->value().toInt();
@@ -173,8 +196,15 @@ void server_handles()
     if(request->hasParam("Name3"))
     {
       Name3 = request->getParam("Name3")->value();
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name3, hume3, checkstate3);
     } 
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name3, hume3, checkstate3);
+    Serial.println(html_out_buffer); 
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
+  });
+
+  server.on("/ch4", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
     if(request->hasParam("hume4"))
     {
       hume4 = request->getParam("hume4")->value().toInt();
@@ -186,11 +216,77 @@ void server_handles()
     if(request->hasParam("Name4"))
     {
       Name4 = request->getParam("Name4")->value();
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name4, hume4, checkstate4);
     } 
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name4, hume4, checkstate4);
     Serial.println(html_out_buffer); 
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-    });
+  });
+
+  server.on("/inital", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "{
+      \"hume1\": %d, \"cb1\": %d, \"Name1\": %s,
+      \"hume2\": %d, \"cb2\": %d, \"Name2\": %s,
+      \"hume3\": %d, \"cb3\": %d, \"Name3\": %s,
+      \"hume4\": %d, \"cb4\": %d, \"Name4\": %s}",
+      hume1, checkstate1, Name1,
+      hume2, checkstate2, Name2,
+      hume3, checkstate3, Name3,
+      hume4, checkstate4, Name4);
+    request->send_P(200, "application/json", html_out_buffer); 
+    Serial.println("Initial Value Request: " + html_out_buffer);
+  });
+
+    server.on("/cyclic", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    String statestring;
+    String statecolor;
+    switch (sysstate)
+    {
+    case SYS_OK:
+      statestring = "Operational";
+      statecolor = "green";
+      break;
+    case SYS_SPILL:
+      statestring = "Spill Detected";
+      statecolor = "crimson";
+      break;
+    case SYS_FAIL:
+      statestring = "Setup Fail";
+      statecolor = "orange";
+      break;
+    case SYS_SD:
+      statestring = "SD Fail - Internal Fallback";
+      statecolor = "orange";
+      break;
+    case SYS_EMPTY:
+      statestring = "Reservoir Empty";
+      statecolor = "lightblue";
+      break;
+    
+    default:
+      statestring = "System Error";
+      statecolor = "crimson";
+      break;
+    }
+    html_out_buffer = "";
+    sprintf(html_out_buffer, "{
+      \"system\": %s, \"sytemcolor\": %s,
+      \"ADCValue1\": %d, \"state1\": %d,
+      \"ADCValue2\": %d, \"state2\": %d,
+      \"ADCValue3\": %d, \"state3\": %d,
+      \"ADCValue4\": %d, \"state4\": %d}",
+      statestring, statecolor,
+      sensor1, state1,
+      sensor2, state2,
+      sensor3, state3,
+      sensor4, state4);
+    request->send_P(200, "application/json", html_out_buffer); 
+    Serial.println("Cyclic Value Update: " + html_out_buffer);
+  });
+
 
   server.begin();
   Serial.println("Server Start");
@@ -252,34 +348,3 @@ void ota_start()
 
   ArduinoOTA.begin();
 }
-
-
-/* variable update for later
-//cyclic getData()
-sprintf(html_out_buffer, "{\"system\": %s, \"sytemcolor\": %s,
-          \"ADCValue1\": %d, \"state1\": %d,
-          \"ADCValue2\": %d, \"state2\": %d,
-          \"ADCValue3\": %d, \"state3\": %d,
-          \"ADCValue4\": %d, \"state4\": %d}",
-          "Operational", "green",
-          sensor1, state1,
-          sensor2, state2,
-          sensor3, state3,
-          sensor4, state4);
-
-//initial fillData()
-sprintf(html_out_buffer, "{
-          \"hume1\": %d, \"cb1\": %d, \"Name1\": %s,
-          \"hume2\": %d, \"cb2\": %d, \"Name2\": %s,
-          \"hume3\": %d, \"cb3\": %d, \"Name3\": %s,
-          \"hume4\": %d, \"cb4\": %d, \"Name4\": %s}",
-          hume1, checkstate1, Name1,
-          hume2, checkstate2, Name2,
-          hume3, checkstate3, Name3,
-          hume4, checkstate4, Name4);
-
-
-server.on("/", handleRoot);     //This is display page
-server.on("/cyclic", getData);  //To get update of ADC Value only
-server.on("/initial", fillData);//Names and set levels
-*/
