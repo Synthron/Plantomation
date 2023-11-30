@@ -1,33 +1,47 @@
 const char MAIN_page[] PROGMEM = R"=====(
 <!DOCTYPE html>
-<html style="font-family: Arial, Helvetica, sans-serif">
+<html>
 
 <head>
   <title>Plantomation</title>
-</head>
-
-<body style="background-color: #b48346">
 
   <style type="text/css">
+    :root {
+      --bgcolor: #b48346;
+      --cardbgcolor: #9bde36;
+      --cardbordercolor: green;
+      --cardtextcolor: navy;
+      --buttonbgcolor: #04aa07;
+      --buttontextcolor: white;
+      --titlecolor: blue;
+      --inputbgcolor: lightgreen;
+      --rangescalecolor: black;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: var(--bgcolor);
+    }
+
     .card {
       border-radius: 20px;
-      border: 1px solid green;
+      border: 1px solid var(--cardbordercolor);
       min-width: 280px;
       /* min-height: 280px;*/
-      background: rgb(155, 222, 54);
+      background: var(--cardbgcolor);
       padding: 15px;
       box-sizing: border-box;
-      color: #000;
+      color: var(--cardtextcolor);
       margin: 10px;
       box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
     }
 
     .button {
-      background-color: #04aa07;
+      background-color: var(--buttonbgcolor);
       /* Green */
       border: none;
       border-radius: 5px;
-      color: white;
+      color: var(--buttontextcolor);
       padding: 2px 32px;
       text-align: center;
       text-decoration: none;
@@ -40,7 +54,7 @@ const char MAIN_page[] PROGMEM = R"=====(
     }
 
     .button:hover {
-      box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+      box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.5), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
     }
 
     datalist {
@@ -58,32 +72,50 @@ const char MAIN_page[] PROGMEM = R"=====(
     input[type="range"] {
       width: 250px;
       margin: 0;
-      color: black;
+      color: var(--rangescalecolor);
 
     }
   </style>
 
-  <h1 style="color: blue; padding-left: 160px;">Plantomation Interface</h1>
-  <h3 style="padding-left: 180px;">System Status: <span id="system" style="color: green">Normal Operation</span></h3>
+</head>
+
+<body>
   <table>
+    <tr>
+      <th colspan="2">
+        <h1 style="color: var(--titlecolor);">
+          Plantomation Interface
+        </h1>
+        <!--Don't change this color in h3, it will be overridden by Ajax-->
+        <h3>
+          System Status: <span id="system" style="color: green">Normal Operation</span>
+        </h3>
+      </th>
+    </tr>
     <tr>
       <td>
         <div class="card">
-          <u>
+          <center>
             <h3>Channel 1</h3>
-          </u>
-          <form action="/get" target="hidden-form">
-            <input type="hidden" name="channel1" value="0"><input type="checkbox" id="cb1" onclick="this.previousSibling.value=1-this.previousSibling.value">
+          </center>
+          <form action="/ch1" target="hidden-form">
+            <input type="hidden" name="channel1" value="0"><input type="checkbox" id="cb1"
+              onclick="this.previousSibling.value=1-this.previousSibling.value">
             <span id="state1">Inactive</span><br><br>
             Plant Name:
-            <input type="text" name="Name1" value="Foo" style="background-color: lightgreen"><br><br>
+            <input type="text" name="Name1" value="Foo"
+              style="background-color: var(--inputbgcolor)"><br><br>
             <label for="hume1">Soil moisture threshold:</label><br>
             <input type="range" id="hume1" name="hume1" list="values" />
             <datalist id="values">
               <option value="0" label="dry"></option>
+              <option value="12"></option>
               <option value="25"></option>
+              <option value="38"></option>
               <option value="50" label="mid"></option>
+              <option value="62"></option>
               <option value="75"></option>
+              <option value="88"></option>
               <option value="100" label="wet"></option>
             </datalist><br>
             Current Moisture: <b><span id="ADCValue1">0</span> </b>%<br><br>
@@ -93,21 +125,21 @@ const char MAIN_page[] PROGMEM = R"=====(
       </td>
       <td>
         <div class="card">
-          <u>
+          <center>
             <h3>Channel 2</h3>
-          </u>
-          <form action="/get" target="hidden-form">
-            <input type="hidden" name="channel2" value="0"><input type="checkbox" id="cb2" onclick="this.previousSibling.value=1-this.previousSibling.value">
+          </center>
+          <form action="/ch2" target="hidden-form">
+            <input type="hidden" name="channel2" value="0"><input type="checkbox" id="cb2"
+              onclick="this.previousSibling.value=1-this.previousSibling.value">
             <span id="state2">Inactive</span><br><br>
             Plant Name:
-            <input type="text" name="Name2" value="Bar" style="background-color: lightgreen"><br><br>
+            <input type="text" name="Name2" value="Bar"
+              style="background-color: var(--inputbgcolor)"><br><br>
             <label for="hume2">Soil moisture threshold:</label><br>
             <input type="range" id="hume2" name="hume2" list="values" />
             <datalist id="values">
               <option value="0" label="dry"></option>
-              <option value="25"></option>
               <option value="50" label="mid"></option>
-              <option value="75"></option>
               <option value="100" label="wet"></option>
             </datalist><br>
             Current Moisture: <b><span id="ADCValue2">0</span> </b>%<br><br>
@@ -119,21 +151,21 @@ const char MAIN_page[] PROGMEM = R"=====(
     <tr>
       <td>
         <div class="card">
-          <u>
+          <center>
             <h3>Channel 3</h3>
-          </u>
-          <form action="/get" target="hidden-form">
-            <input type="hidden" name="channel3" value="0"><input type="checkbox" id="cb3" onclick="this.previousSibling.value=1-this.previousSibling.value">
+          </center>
+          <form action="/ch3" target="hidden-form">
+            <input type="hidden" name="channel3" value="0"><input type="checkbox" id="cb3"
+              onclick="this.previousSibling.value=1-this.previousSibling.value">
             <span id="state3">Inactive</span><br><br>
             Plant Name:
-            <input type="text" name="Name3" value="Baz" style="background-color: lightgreen"><br><br>
+            <input type="text" name="Name3" value="Baz"
+              style="background-color: var(--inputbgcolor)"><br><br>
             <label for="hume3">Soil moisture threshold:</label><br>
             <input type="range" id="hume3" name="hume3" list="values" />
             <datalist id="values">
               <option value="0" label="dry"></option>
-              <option value="25"></option>
               <option value="50" label="mid"></option>
-              <option value="75"></option>
               <option value="100" label="wet"></option>
             </datalist><br>
             Current Moisture: <b><span id="ADCValue3">0</span> </b>%<br><br>
@@ -143,21 +175,21 @@ const char MAIN_page[] PROGMEM = R"=====(
       </td>
       <td>
         <div class="card">
-          <u>
+          <center>
             <h3>Channel 4</h3>
-          </u>
-          <form action="/get" target="hidden-form">
-            <input type="hidden" name="channel4" value="0"><input type="checkbox" id="cb4" onclick="this.previousSibling.value=1-this.previousSibling.value">
+          </center>
+          <form action="/ch4" target="hidden-form">
+            <input type="hidden" name="channel4" value="0"><input type="checkbox" id="cb4"
+              onclick="this.previousSibling.value=1-this.previousSibling.value">
             <span id="state4">Inactive</span><br><br>
             Plant Name:
-            <input type="text" name="Name4" value="Qux" style="background-color: lightgreen"><br><br>
+            <input type="text" name="Name4" value="Qux"
+              style="background-color: var(--inputbgcolor)"><br><br>
             <label for="hume4">Soil moisture threshold:</label><br>
             <input type="range" id="hume4" name="hume4" list="values" />
             <datalist id="values">
               <option value="0" label="dry"></option>
-              <option value="25"></option>
               <option value="50" label="mid"></option>
-              <option value="75"></option>
               <option value="100" label="wet"></option>
             </datalist><br>
             Current Moisture: <b><span id="ADCValue4">0</span> </b>%<br><br>
@@ -170,16 +202,16 @@ const char MAIN_page[] PROGMEM = R"=====(
 
   <script>
     //Call function on Page Load
-    //document.addEventListener("DOMContentLoaded", getInitial());
+    document.addEventListener("DOMContentLoaded", getInitial());
 
     setInterval(function () {
       // Call a function repetatively with 2 Second interval
-      //getCyclic();
+      getCyclic();
     }, 2000); //2000mSeconds update rate
 
     function getInitial() {
       var xhttp = new XMLHttpRequest();
-      xhttp.open("GET", "cyclic", true);
+      xhttp.open("GET", "initial", true);
 
       xhttp.onload = function () {
         if (this.status === 200) {
