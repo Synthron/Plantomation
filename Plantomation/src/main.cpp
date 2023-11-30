@@ -13,10 +13,10 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-#include "main.h"
+#include "sites.h"
 
-const char *ssid = "xxxxx";
-const char *password = "xxxx";
+const char *ssid = "HollaDieWaldfee";
+const char *password = "LuisenStr11";
 
 String hostname = "ESP32-Test";
 
@@ -58,12 +58,17 @@ AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 #define SYS_EMPTY 4
 #define SYS_FATAL 255
 
+//#define serial_debug
+
 TaskHandle_t WebTasks;
 
 char html_out_buffer[200];
 String Name1="", Name2="", Name3="", Name4="";
 uint8_t checkstate1=0, checkstate2=0, checkstate3=0, checkstate4=0;
 uint8_t hume1=0, hume2=0, hume3=0, hume4=0;
+uint8_t sysstate = 0;
+uint8_t sensor1=0, sensor2=0, sensor3=0, sensor4=0;
+uint8_t state1=0, state2=0, state3=0, state4=0;
 
 // put function declarations here:
 void ota_start();
@@ -131,6 +136,11 @@ void loop()
   digitalWrite(2, LOW);
   delay(1000);
   digitalWrite(2, HIGH);
+
+  if(sensor1 < 100)
+    sensor1++;
+  else 
+    sensor1=0;
 }
 
 //AsyncWebServer handles and functions
@@ -141,6 +151,25 @@ void server_handles()
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
   { 
     request->send_P(200, "text/html", MAIN_page); 
+    #ifdef serial_debug
+      Serial.println("Load Main Page");
+    #endif
+  });
+
+  server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    request->send_P(200, "text/html", CONFIG_page); 
+    #ifdef serial_debug
+      Serial.println("Load Control Page");
+    #endif
+  });
+
+  server.on("/about", HTTP_GET, [](AsyncWebServerRequest *request)
+  { 
+    request->send_P(200, "text/html", ABOUT_page); 
+    #ifdef serial_debug
+      Serial.println("Load About Page");
+    #endif
   });
 
   server.on("/ch1", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -151,15 +180,17 @@ void server_handles()
     }
     if(request->hasParam("channel1"))
     {
-      checkstate1 = request->getParam("channel1")->value().toInt();
-    }
+      state1 = request->getParam("channel1")->value().toInt();
+    }else state1 = 0;
     if(request->hasParam("Name1"))
     {
       Name1 = request->getParam("Name1")->value();
     } 
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name1, hume1, checkstate1);
-    Serial.println(html_out_buffer); 
+    #ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name1, hume1, state1);
+      Serial.println(html_out_buffer); 
+    #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
   });
 
@@ -171,15 +202,17 @@ void server_handles()
     }
     if(request->hasParam("channel2"))
     {
-      checkstate2 = request->getParam("channel2")->value().toInt();
-    }
+      state2 = request->getParam("channel2")->value().toInt();
+    }else state2 = 0;
     if(request->hasParam("Name2"))
     {
       Name2 = request->getParam("Name2")->value();
     } 
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name2, hume2, checkstate2);
-    Serial.println(html_out_buffer); 
+    #ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name2, hume2, checkstate2);
+      Serial.println(html_out_buffer); 
+    #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
   });
 
@@ -191,15 +224,17 @@ void server_handles()
     }
     if(request->hasParam("channel3"))
     {
-      checkstate3 = request->getParam("channel3")->value().toInt();
-    }
+      state3 = request->getParam("channel3")->value().toInt();
+    }else state3 = 0;
     if(request->hasParam("Name3"))
     {
       Name3 = request->getParam("Name3")->value();
     } 
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name3, hume3, checkstate3);
-    Serial.println(html_out_buffer); 
+    #ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name3, hume3, checkstate3);
+      Serial.println(html_out_buffer); 
+    #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
   });
 
@@ -211,32 +246,33 @@ void server_handles()
     }
     if(request->hasParam("channel4"))
     {
-      checkstate4 = request->getParam("channel4")->value().toInt();
-    }
+      state4 = request->getParam("channel4")->value().toInt();
+    }else state4 = 0;
     if(request->hasParam("Name4"))
     {
       Name4 = request->getParam("Name4")->value();
     } 
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name4, hume4, checkstate4);
-    Serial.println(html_out_buffer); 
+    #ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name4, hume4, checkstate4);
+      Serial.println(html_out_buffer); 
+    #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
   });
 
-  server.on("/inital", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/initial", HTTP_GET, [](AsyncWebServerRequest *request)
   { 
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "{
-      \"hume1\": %d, \"cb1\": %d, \"Name1\": %s,
-      \"hume2\": %d, \"cb2\": %d, \"Name2\": %s,
-      \"hume3\": %d, \"cb3\": %d, \"Name3\": %s,
-      \"hume4\": %d, \"cb4\": %d, \"Name4\": %s}",
-      hume1, checkstate1, Name1,
-      hume2, checkstate2, Name2,
-      hume3, checkstate3, Name3,
-      hume4, checkstate4, Name4);
+    memset(html_out_buffer, 0, sizeof html_out_buffer);
+    sprintf(html_out_buffer, "{\"hume1\": %d, \"cb1\": %d, \"Name1\": \"%s\", \"hume2\": %d, \"cb2\": %d, \"Name2\": \"%s\", \"hume3\": %d, \"cb3\": %d, \"Name3\": \"%s\", \"hume4\": %d, \"cb4\": %d, \"Name4\": \"%s\"}",
+      hume1, state1, Name1,
+      hume2, state2, Name2,
+      hume3, state3, Name3,
+      hume4, state4, Name4);
     request->send_P(200, "application/json", html_out_buffer); 
-    Serial.println("Initial Value Request: " + html_out_buffer);
+    #ifdef serial_debug
+      Serial.print("Initial Value Request: ");
+      Serial.println(html_out_buffer);
+    #endif
   });
 
     server.on("/cyclic", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -271,25 +307,40 @@ void server_handles()
       statecolor = "crimson";
       break;
     }
-    html_out_buffer = "";
-    sprintf(html_out_buffer, "{
-      \"system\": %s, \"sytemcolor\": %s,
-      \"ADCValue1\": %d, \"state1\": %d,
-      \"ADCValue2\": %d, \"state2\": %d,
-      \"ADCValue3\": %d, \"state3\": %d,
-      \"ADCValue4\": %d, \"state4\": %d}",
+    String _state1, _state2, _state3, _state4;
+    if(state1)
+      _state1 = "Active";
+    else
+      _state1 = "Inactive";
+    if(state2)
+      _state2 = "Active";
+    else
+      _state2 = "Inactive";
+    if(state3)
+      _state3 = "Active";
+    else
+      _state3 = "Inactive";
+    if(state4)
+      _state4 = "Active";
+    else
+      _state4 = "Inactive";
+    memset(html_out_buffer, 0, sizeof html_out_buffer);
+    sprintf(html_out_buffer, "{\"system\": \"%s\", \"sytemcolor\": \"%s\", \"ADCValue1\": %d, \"state1\": \"%s\", \"ADCValue2\": %d, \"state2\": \"%s\", \"ADCValue3\": %d, \"state3\": \"%s\", \"ADCValue4\": %d, \"state4\": \"%s\"}",
       statestring, statecolor,
-      sensor1, state1,
-      sensor2, state2,
-      sensor3, state3,
-      sensor4, state4);
+      sensor1, _state1,
+      sensor2, _state2,
+      sensor3, _state3,
+      sensor4, _state4);
     request->send_P(200, "application/json", html_out_buffer); 
-    Serial.println("Cyclic Value Update: " + html_out_buffer);
+    #ifdef serial_debug
+      Serial.print("Cyclic Value Update: ");
+      Serial.println(html_out_buffer);
+    #endif
   });
 
 
   server.begin();
-  Serial.println("Server Start");
+  Serial.println("Webserver Started");
   
 }
 
@@ -300,7 +351,7 @@ void Web_Tasks(void *pvParameters)
   for (;;)
   {
     ArduinoOTA.handle();
-    vTaskDelay(10);
+    vTaskDelay(1);
   }
 }
 
@@ -316,7 +367,7 @@ void wifi_start()
     delay(5000);
     ESP.restart();
   }
-  Serial.println("WiFi Start");
+  Serial.println("WiFi Started");
 }
 
 //configure OTA
