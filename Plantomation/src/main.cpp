@@ -15,8 +15,8 @@
 
 #include "sites.h"
 
-const char *ssid = "HollaDieWaldfee";
-const char *password = "LuisenStr11";
+const char *ssid = "XXX";
+const char *password = "XXX";
 
 String hostname = "ESP32-Test";
 
