@@ -15,8 +15,12 @@
 
 #include "sites.h"
 
+#if __has_include("credentials.h")
+#include "credentials.h"
+#else
 const char *ssid = "XXX";
 const char *password = "XXX";
+#endif
 
 String hostname = "ESP32-Test";
 
