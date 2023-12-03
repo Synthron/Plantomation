@@ -15,23 +15,8 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-//websites
+// websites
 #include "sites.h"
-
-#define FORMAT_SPIFFS_IF_FAILED false
-
-
-struct Wifi {
-  char hostname[64];
-  char ssid[64];
-  char passwd[64];
-  uint8_t mode;
-};
-
-uint8_t nowificonfig = 0;
-Wifi wifi;
-
-AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 
 #define pump 4
 #define detect 16
@@ -52,7 +37,7 @@ AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 #define spill 36
 #define set1 14
 #define set2 13
-//Defines for Webinterface
+// Defines for Webinterface
 #define SYS_OK 0
 #define SYS_SPILL 1
 #define SYS_FAIL 2
@@ -60,26 +45,61 @@ AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 #define SYS_EMPTY 4
 #define SYS_FATAL 255
 
-//#define serial_debug
+// #define serial_debug
+
+#define FORMAT_SPIFFS_IF_FAILED false
+
+struct Wifi
+{
+  char hostname[64];
+  char ssid[64];
+  char passwd[64];
+  uint8_t mode;
+};
+
+struct Plant
+{
+  char name[64];
+  uint8_t op_mode = 0;
+  uint8_t moisture = 0;
+  uint32_t interval_time = 0;
+  uint16_t volume = 0;
+  uint8_t log_enable = 0;
+  uint16_t sensor_raw = 0;
+  uint8_t sensor_display = 0;
+};
+
+struct PlantConf
+{
+  uint16_t pumprate = 0;
+  uint8_t debug_level = 0;
+  uint8_t log_level = 0;
+  uint8_t sysstate = 0;
+};
+
+uint8_t nowificonfig = 0;
+Wifi wifi;
+
+AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 
 TaskHandle_t WebTasks;
 
-char html_out_buffer[200];
-String Name1="", Name2="", Name3="", Name4="";
-uint8_t checkstate1=0, checkstate2=0, checkstate3=0, checkstate4=0;
-uint8_t hume1=0, hume2=0, hume3=0, hume4=0;
-uint8_t sysstate = 0;
-uint8_t sensor1=0, sensor2=0, sensor3=0, sensor4=0;
-uint8_t state1=0, state2=0, state3=0, state4=0;
+char html_out_buffer[512];
+
+Plant plant1, plant2, plant3, plant4;
+PlantConf pconf;
 
 // put function declarations here:
 void ota_start();
 void wifi_start();
 void Web_Tasks(void *pvParameters);
 void server_handles();
-bool fileExists(fs::FS &fs, const char * path);
-void loadWifiConfig(fs::FS &fs, const char * path);
-void saveWifiConfig(fs::FS &fs, const char * path);
+void page_handles();
+void input_handles();
+void output_handles();
+bool fileExists(fs::FS &fs, const char *path);
+void loadWifiConfig(fs::FS &fs, const char *path);
+void saveWifiConfig(fs::FS &fs, const char *path);
 
 void notFound(AsyncWebServerRequest *request)
 {
@@ -91,7 +111,7 @@ void setup()
   delay(2000);
   Serial.begin(115200);
   Serial.println("Booting...");
-  if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
+  if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
   {
     Serial.println("SPIFFS Mount Failed");
     ESP.restart();
@@ -106,8 +126,7 @@ void setup()
   Serial.println(WiFi.localIP());
   delay(500);
 
-
-  //create special task for OTA and Webserver on seperate core
+  // create special task for OTA and Webserver on seperate core
   xTaskCreatePinnedToCore(
       Web_Tasks, /* Task function. */
       "Web_OTA", /* name of task. */
@@ -118,7 +137,7 @@ void setup()
       0);        /* pin task to core 0 */
   delay(500);
 
-//LED-pin on NodeMCU for testing purposes
+  // LED-pin on NodeMCU for testing purposes
   pinMode(2, OUTPUT);
 
   /* Pin Config for final board
@@ -142,139 +161,209 @@ void setup()
 
 void loop()
 {
-  //LED blinking with delay
+  // LED blinking with delay
 
   delay(1000);
   digitalWrite(2, LOW);
   delay(1000);
   digitalWrite(2, HIGH);
 
-  if(sensor1 < 100)
-    sensor1++;
-  else 
-    sensor1=0;
-
+  if (plant1.sensor_display < 100)
+    plant1.sensor_display++;
+  else
+    plant1.sensor_display = 0;
 }
 
-//AsyncWebServer handles and functions
+// AsyncWebServer handles and functions
 void server_handles()
+{
+  page_handles();
+  input_handles();
+  output_handles();
+
+  server.begin();
+  Serial.println("Webserver Started");
+}
+
+void page_handles()
 {
   server.onNotFound(notFound);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    request->send_P(200, "text/html", MAIN_page); 
-    #ifdef serial_debug
-      Serial.println("Load Main Page");
-    #endif
-  });
+            {
+              request->send_P(200, "text/html", MAIN_page);
+#ifdef serial_debug
+              Serial.println("Load Main Page");
+#endif
+            });
 
   server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    request->send_P(200, "text/html", CONFIG_page); 
-    #ifdef serial_debug
-      Serial.println("Load Control Page");
-    #endif
-  });
+            {
+              request->send_P(200, "text/html", CONFIG_page);
+#ifdef serial_debug
+              Serial.println("Load Control Page");
+#endif
+            });
 
   server.on("/about", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    request->send_P(200, "text/html", ABOUT_page); 
-    #ifdef serial_debug
-      Serial.println("Load About Page");
-    #endif
-  });
+            {
+              request->send_P(200, "text/html", ABOUT_page);
+#ifdef serial_debug
+              Serial.println("Load About Page");
+#endif
+            });
+}
 
+void input_handles()
+{
   server.on("/ch1", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+            {
     if(request->hasParam("hume1"))
     {
-      hume1 = request->getParam("hume1")->value().toInt();
+      plant1.moisture = request->getParam("hume1")->value().toInt();
     }
-    if(request->hasParam("channel1"))
-    {
-      state1 = request->getParam("channel1")->value().toInt();
-    }else state1 = 0;
     if(request->hasParam("Name1"))
     {
-      Name1 = request->getParam("Name1")->value();
-    } 
-    #ifdef serial_debug
+      strlcpy(plant1.name, request->getParam("Name1")->value().c_str(), sizeof(plant1.name));
+    }
+    if(request->hasParam("time1"))
+    {
+      plant1.interval_time = request->getParam("time1")->value().toInt();
+    }
+    if(request->hasParam("vol1"))
+    {
+      plant1.volume = request->getParam("vol1")->value().toInt();
+    }
+#ifdef serial_debug
       memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name1, hume1, state1);
-      Serial.println(html_out_buffer); 
-    #endif
-    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-  });
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      plant1.name, plant1.moisture, plant1.op_mode, plant1.interval_time, plant1.volume);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
 
   server.on("/ch2", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+            {
     if(request->hasParam("hume2"))
     {
-      hume2 = request->getParam("hume2")->value().toInt();
+      plant2.moisture = request->getParam("hume2")->value().toInt();
     }
-    if(request->hasParam("channel2"))
-    {
-      state2 = request->getParam("channel2")->value().toInt();
-    }else state2 = 0;
     if(request->hasParam("Name2"))
     {
-      Name2 = request->getParam("Name2")->value();
-    } 
-    #ifdef serial_debug
+      strlcpy(plant2.name, request->getParam("Name2")->value().c_str(), sizeof(plant2.name));
+    }
+    if(request->hasParam("time2"))
+    {
+      plant2.interval_time = request->getParam("time2")->value().toInt();
+    }
+    if(request->hasParam("vol2"))
+    {
+      plant2.volume = request->getParam("vol2")->value().toInt();
+    }
+#ifdef serial_debug
       memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name2, hume2, checkstate2);
-      Serial.println(html_out_buffer); 
-    #endif
-    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-  });
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      plant2.name, plant2.moisture, plant2.op_mode, plant2.interval_time, plant2.volume);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
 
   server.on("/ch3", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+            {
     if(request->hasParam("hume3"))
     {
-      hume3 = request->getParam("hume3")->value().toInt();
+      plant3.moisture = request->getParam("hume3")->value().toInt();
     }
-    if(request->hasParam("channel3"))
-    {
-      state3 = request->getParam("channel3")->value().toInt();
-    }else state3 = 0;
     if(request->hasParam("Name3"))
     {
-      Name3 = request->getParam("Name3")->value();
-    } 
-    #ifdef serial_debug
+      strlcpy(plant3.name, request->getParam("Name3")->value().c_str(), sizeof(plant3.name));
+    }
+    if(request->hasParam("time3"))
+    {
+      plant3.interval_time = request->getParam("time3")->value().toInt();
+    }
+    if(request->hasParam("vol3"))
+    {
+      plant3.volume = request->getParam("vol3")->value().toInt();
+    }
+#ifdef serial_debug
       memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name3, hume3, checkstate3);
-      Serial.println(html_out_buffer); 
-    #endif
-    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-  });
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      plant3.name, plant3.moisture, plant3.op_mode, plant3.interval_time, plant3.volume);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
 
   server.on("/ch4", HTTP_GET, [](AsyncWebServerRequest *request)
-  {
+            {
     if(request->hasParam("hume4"))
     {
-      hume4 = request->getParam("hume4")->value().toInt();
+      plant4.moisture = request->getParam("hume4")->value().toInt();
     }
-    if(request->hasParam("channel4"))
-    {
-      state4 = request->getParam("channel4")->value().toInt();
-    }else state4 = 0;
     if(request->hasParam("Name4"))
     {
-      Name4 = request->getParam("Name4")->value();
-    } 
-    #ifdef serial_debug
+      strlcpy(plant4.name, request->getParam("Name4")->value().c_str(), sizeof(plant4.name));
+    }
+    if(request->hasParam("time4"))
+    {
+      plant4.interval_time = request->getParam("time4")->value().toInt();
+    }
+    if(request->hasParam("vol4"))
+    {
+      plant4.volume = request->getParam("vol4")->value().toInt();
+    }
+#ifdef serial_debug
       memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d", Name4, hume4, checkstate4);
-      Serial.println(html_out_buffer); 
-    #endif
-    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-  });
+      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      plant4.name, plant4.moisture, plant4.op_mode, plant4.interval_time, plant4.volume);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
 
-    server.on("/wifi_set", HTTP_POST, [](AsyncWebServerRequest *request)
-  {
+  server.on("/modes", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+    if(request->hasParam("ch1_mode"))
+    {
+      plant1.op_mode = request->getParam("ch1_mode")->value().toInt();
+    }
+    if(request->hasParam("ch2_mode"))
+    {
+      plant2.op_mode = request->getParam("ch2_mode")->value().toInt();
+    }
+    if(request->hasParam("ch3_mode"))
+    {
+      plant3.op_mode = request->getParam("ch3_mode")->value().toInt();
+    }
+    if(request->hasParam("ch4_mode"))
+    {
+      plant4.op_mode = request->getParam("ch4_mode")->value().toInt();
+    }
+
+#ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "mode1: %d, mode2: %d, mode3: %d, mode4: %d", 
+      plant1.op_mode, plant2.op_mode, plant3.op_mode, plant4.op_mode);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
+
+  server.on("/sysconf", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+    if(request->hasParam("pumprate"))
+    {
+      pconf.pumprate = request->getParam("pumprate")->value().toInt();
+    }
+
+#ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "Pumprate: %d", 
+      pconf.pumprate);
+      Serial.println(html_out_buffer);
+#endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
+
+  server.on("/wifi_set", HTTP_POST, [](AsyncWebServerRequest *request)
+            {
     if(request->hasParam("ssid"))
     {
       strlcpy(wifi.ssid, request->getParam("ssid")->value().c_str(), sizeof(wifi.ssid));
@@ -290,103 +379,170 @@ void server_handles()
     if(request->hasParam("wifimode"))
     {
       wifi.mode = request->getParam("wifimode")->value().toInt();
-    } 
-    #ifdef serial_debug
+    }
+#ifdef serial_debug
       memset(html_out_buffer, 0, sizeof html_out_buffer);
       sprintf(html_out_buffer, "Hostname = %s; SSID = %s; Password= %s; Mode= %d", wifi.hostname, wifi.ssid, wifi.passwd, wifi.mode);
-      Serial.println(html_out_buffer); 
-    #endif
+      Serial.println(html_out_buffer);
+#endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
     saveWifiConfig(SPIFFS, "/wifi.txt");
     delay(100);
-    ESP.restart();
-  });
-
-  server.on("/initial", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    memset(html_out_buffer, 0, sizeof html_out_buffer);
-    sprintf(html_out_buffer, "{\"hume1\": %d, \"cb1\": %d, \"Name1\": \"%s\", \"hume2\": %d, \"cb2\": %d, \"Name2\": \"%s\", \"hume3\": %d, \"cb3\": %d, \"Name3\": \"%s\", \"hume4\": %d, \"cb4\": %d, \"Name4\": \"%s\"}",
-      hume1, state1, Name1,
-      hume2, state2, Name2,
-      hume3, state3, Name3,
-      hume4, state4, Name4);
-    request->send_P(200, "application/json", html_out_buffer); 
-    #ifdef serial_debug
-      Serial.print("Initial Value Request: ");
-      Serial.println(html_out_buffer);
-    #endif
-  });
-
-    server.on("/cyclic", HTTP_GET, [](AsyncWebServerRequest *request)
-  { 
-    String statestring;
-    String statecolor;
-    switch (sysstate)
-    {
-    case SYS_OK:
-      statestring = "Operational";
-      statecolor = "green";
-      break;
-    case SYS_SPILL:
-      statestring = "Spill Detected";
-      statecolor = "crimson";
-      break;
-    case SYS_FAIL:
-      statestring = "Setup Fail";
-      statecolor = "orange";
-      break;
-    case SYS_SD:
-      statestring = "SD Fail - Internal Fallback";
-      statecolor = "orange";
-      break;
-    case SYS_EMPTY:
-      statestring = "Reservoir Empty";
-      statecolor = "lightblue";
-      break;
-    
-    default:
-      statestring = "System Error";
-      statecolor = "crimson";
-      break;
-    }
-    String _state1, _state2, _state3, _state4;
-    if(state1)
-      _state1 = "Active";
-    else
-      _state1 = "Inactive";
-    if(state2)
-      _state2 = "Active";
-    else
-      _state2 = "Inactive";
-    if(state3)
-      _state3 = "Active";
-    else
-      _state3 = "Inactive";
-    if(state4)
-      _state4 = "Active";
-    else
-      _state4 = "Inactive";
-    memset(html_out_buffer, 0, sizeof html_out_buffer);
-    sprintf(html_out_buffer, "{\"system\": \"%s\", \"sytemcolor\": \"%s\", \"ADCValue1\": %d, \"state1\": \"%s\", \"ADCValue2\": %d, \"state2\": \"%s\", \"ADCValue3\": %d, \"state3\": \"%s\", \"ADCValue4\": %d, \"state4\": \"%s\"}",
-      statestring, statecolor,
-      sensor1, _state1,
-      sensor2, _state2,
-      sensor3, _state3,
-      sensor4, _state4);
-    request->send_P(200, "application/json", html_out_buffer); 
-    #ifdef serial_debug
-      Serial.print("Cyclic Value Update: ");
-      Serial.println(html_out_buffer);
-    #endif
-  });
-
-
-  server.begin();
-  Serial.println("Webserver Started");
-  
+    ESP.restart(); });
 }
 
-//Run OTA and Web Service on different core than main loop
+void output_handles()
+{
+  server.on("/initial", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              memset(html_out_buffer, 0, sizeof html_out_buffer);
+
+              StaticJsonDocument<512> doc;
+              // moisture values
+              doc["hume1"] = plant1.moisture;
+              doc["hume2"] = plant2.moisture;
+              doc["hume3"] = plant3.moisture;
+              doc["hume4"] = plant4.moisture;
+              // Op-Mode Values
+              doc["mode1"] = plant1.op_mode;
+              doc["mode2"] = plant2.op_mode;
+              doc["mode3"] = plant3.op_mode;
+              doc["mode4"] = plant4.op_mode;
+              // Name Values
+              doc["Name1"] = plant1.name;
+              doc["Name2"] = plant2.name;
+              doc["Name3"] = plant3.name;
+              doc["Name4"] = plant4.name;
+              // Interval-Time Values
+              doc["time1"] = plant1.interval_time;
+              doc["time2"] = plant2.interval_time;
+              doc["time3"] = plant3.interval_time;
+              doc["time4"] = plant4.interval_time;
+              // Volume Values
+              doc["vol1"] = plant1.volume;
+              doc["vol2"] = plant2.volume;
+              doc["vol3"] = plant3.volume;
+              doc["vol4"] = plant4.volume;
+
+              serializeJson(doc, html_out_buffer);
+
+              request->send_P(200, "application/json", html_out_buffer);
+#ifdef serial_debug
+              Serial.print("Initial Value Request: ");
+              Serial.println(html_out_buffer);
+#endif
+            });
+
+  server.on("/conf", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              String statestring;
+              String statecolor;
+              switch (pconf.sysstate)
+              {
+              case SYS_OK:
+                statestring = "Operational";
+                statecolor = "green";
+                break;
+              case SYS_SPILL:
+                statestring = "Spill Detected";
+                statecolor = "crimson";
+                break;
+              case SYS_FAIL:
+                statestring = "Setup Fail";
+                statecolor = "orange";
+                break;
+              case SYS_SD:
+                statestring = "SD Fail - Internal Fallback";
+                statecolor = "orange";
+                break;
+              case SYS_EMPTY:
+                statestring = "Reservoir Empty";
+                statecolor = "lightblue";
+                break;
+
+              default:
+                statestring = "System Error";
+                statecolor = "crimson";
+                break;
+              }
+              memset(html_out_buffer, 0, sizeof html_out_buffer);
+
+              StaticJsonDocument<512> doc;
+              // System values
+              doc["system"] = statestring;
+              doc["systemcolor"] = statecolor;
+              doc["pumprate"] = pconf.pumprate;
+              // Op-Mode Values
+              doc["mode1"] = plant1.op_mode;
+              doc["mode2"] = plant2.op_mode;
+              doc["mode3"] = plant3.op_mode;
+              doc["mode4"] = plant4.op_mode;
+
+              serializeJson(doc, html_out_buffer);
+              request->send_P(200, "application/json", html_out_buffer);
+#ifdef serial_debug
+              Serial.print("Config Values: ");
+              Serial.println(html_out_buffer);
+#endif
+            });
+
+  server.on("/cyclic", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              String statestring;
+              String statecolor;
+              switch (pconf.sysstate)
+              {
+              case SYS_OK:
+                statestring = "Operational";
+                statecolor = "green";
+                break;
+              case SYS_SPILL:
+                statestring = "Spill Detected";
+                statecolor = "crimson";
+                break;
+              case SYS_FAIL:
+                statestring = "Setup Fail";
+                statecolor = "orange";
+                break;
+              case SYS_SD:
+                statestring = "SD Fail - Internal Fallback";
+                statecolor = "orange";
+                break;
+              case SYS_EMPTY:
+                statestring = "Reservoir Empty";
+                statecolor = "lightblue";
+                break;
+
+              default:
+                statestring = "System Error";
+                statecolor = "crimson";
+                break;
+              }
+
+              memset(html_out_buffer, 0, sizeof html_out_buffer);
+
+              StaticJsonDocument<512> doc;
+              // System values
+              doc["system"] = statestring;
+              doc["systemcolor"] = statecolor;
+              doc["pumprate"] = pconf.pumprate;
+              // Moisture Values in %
+              doc["ADCValue1"] = plant1.sensor_display;
+              doc["ADCValue2"] = plant2.sensor_display;
+              doc["ADCValue3"] = plant3.sensor_display;
+              doc["ADCValue4"] = plant4.sensor_display;
+
+              serializeJson(doc, html_out_buffer);
+
+              request->send_P(200, "application/json", html_out_buffer);
+#ifdef serial_debug
+              Serial.print("Cyclic Value Update: ");
+              Serial.println(html_out_buffer);
+#endif
+            });
+}
+
+// Run OTA and Web Service on different core than main loop
 void Web_Tasks(void *pvParameters)
 {
   server_handles();
@@ -397,10 +553,10 @@ void Web_Tasks(void *pvParameters)
   }
 }
 
-//start wifi
+// start wifi
 void wifi_start()
 {
-  if(fileExists(SPIFFS, "/wifi.txt"))
+  if (fileExists(SPIFFS, "/wifi.txt"))
   {
     loadWifiConfig(SPIFFS, "/wifi.txt");
   }
@@ -413,21 +569,21 @@ void wifi_start()
     saveWifiConfig(SPIFFS, "/wifi.txt");
   }
 
-  if(wifi.mode == 1)
+  if (wifi.mode == 1)
   {
     WiFi.mode(WIFI_STA);
     WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
     WiFi.setHostname(wifi.hostname);
     WiFi.begin(wifi.ssid, wifi.passwd);
-    delay(2000); //wait 2sec to connect to network
-    //if no connection, make your own network
-    if(!WiFi.isConnected())
+    delay(2000); // wait 2sec to connect to network
+    // if no connection, make your own network
+    if (!WiFi.isConnected())
       nowificonfig = 1;
   }
 
-  if(wifi.mode == 0)
+  if (wifi.mode == 0)
   {
-    if(nowificonfig)
+    if (nowificonfig)
     {
       strlcpy(wifi.hostname, "Plantomation-Standalone", sizeof(wifi.hostname));
       strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
@@ -436,8 +592,8 @@ void wifi_start()
     }
     WiFi.mode(WIFI_AP);
     delay(250);
-    IPAddress local_IP(4,3,2,1);
-    IPAddress subnet(255,255,255,0);
+    IPAddress local_IP(4, 3, 2, 1);
+    IPAddress subnet(255, 255, 255, 0);
     WiFi.softAPConfig(local_IP, INADDR_NONE, subnet);
     delay(250);
     WiFi.softAP(wifi.ssid, wifi.passwd);
@@ -445,13 +601,13 @@ void wifi_start()
   }
 
   Serial.print("WiFi Started - ");
-  if(wifi.mode)
+  if (wifi.mode)
     Serial.println("Station Mode");
   else
     Serial.println("Access Point Mode");
 }
 
-//configure OTA
+// configure OTA
 void ota_start()
 {
   ArduinoOTA
@@ -481,16 +637,15 @@ void ota_start()
   ArduinoOTA.begin();
 }
 
-
-bool fileExists(fs::FS &fs, const char * path)
+bool fileExists(fs::FS &fs, const char *path)
 {
-  if(fs.exists(path))
+  if (fs.exists(path))
     return true;
   else
     return false;
 }
 
-void loadWifiConfig(fs::FS &fs, const char * path)
+void loadWifiConfig(fs::FS &fs, const char *path)
 {
   File file = fs.open(path);
   StaticJsonDocument<256> doc;
@@ -503,11 +658,11 @@ void loadWifiConfig(fs::FS &fs, const char * path)
   wifi.mode = doc["mode"];
 }
 
-void saveWifiConfig(fs::FS &fs, const char * path)
+void saveWifiConfig(fs::FS &fs, const char *path)
 {
-  if(fs.exists(path))
+  if (fs.exists(path))
     fs.remove(path);
-  
+
   File file = fs.open(path, FILE_WRITE);
   StaticJsonDocument<256> doc;
   doc["hostname"] = wifi.hostname;
