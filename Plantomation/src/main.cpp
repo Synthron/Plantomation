@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "tinyxml2.h"
 #include "FS.h"
+#include "SPIFFS.h"
+#include <ArduinoJson.h>
 #include "SD.h"
 #include "SPI.h"
 #include <WiFi.h>
@@ -13,21 +15,21 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+//websites
 #include "sites.h"
 
-const char *ssid = "HollaDieWaldfee";
-const char *password = "LuisenStr11";
+#define FORMAT_SPIFFS_IF_FAILED false
 
-String hostname = "ESP32-Test";
 
-// HTML & CSS contents which display on web server
-String HTML = "<!DOCTYPE html>\
-<html>\
-<body>\
-<h1>My First Web Server with ESP32 - Station Mode &#128522;</h1>\
-<p> Erster Test ESP32 und OTA mit Webserver</p>\
-</body>\
-</html>";
+struct Wifi {
+  char hostname[64];
+  char ssid[64];
+  char passwd[64];
+  uint8_t mode;
+};
+
+uint8_t nowificonfig = 0;
+Wifi wifi;
 
 AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 
@@ -75,6 +77,9 @@ void ota_start();
 void wifi_start();
 void Web_Tasks(void *pvParameters);
 void server_handles();
+bool fileExists(fs::FS &fs, const char * path);
+void loadWifiConfig(fs::FS &fs, const char * path);
+void saveWifiConfig(fs::FS &fs, const char * path);
 
 void notFound(AsyncWebServerRequest *request)
 {
@@ -83,8 +88,15 @@ void notFound(AsyncWebServerRequest *request)
 
 void setup()
 {
+  delay(2000);
   Serial.begin(115200);
   Serial.println("Booting...");
+  if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED))
+  {
+    Serial.println("SPIFFS Mount Failed");
+    ESP.restart();
+  }
+  Serial.println("SPIFFS mounted");
 
   wifi_start();
 
@@ -141,6 +153,7 @@ void loop()
     sensor1++;
   else 
     sensor1=0;
+
 }
 
 //AsyncWebServer handles and functions
@@ -260,6 +273,35 @@ void server_handles()
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
   });
 
+    server.on("/wifi_set", HTTP_POST, [](AsyncWebServerRequest *request)
+  {
+    if(request->hasParam("ssid"))
+    {
+      strlcpy(wifi.ssid, request->getParam("ssid")->value().c_str(), sizeof(wifi.ssid));
+    }
+    if(request->hasParam("passwd"))
+    {
+      strlcpy(wifi.passwd, request->getParam("passwd")->value().c_str(), sizeof(wifi.passwd));
+    }
+    if(request->hasParam("hostname"))
+    {
+      strlcpy(wifi.hostname, request->getParam("hostname")->value().c_str(), sizeof(wifi.hostname));
+    } 
+    if(request->hasParam("wifimode"))
+    {
+      wifi.mode = request->getParam("wifimode")->value().toInt();
+    } 
+    #ifdef serial_debug
+      memset(html_out_buffer, 0, sizeof html_out_buffer);
+      sprintf(html_out_buffer, "Hostname = %s; SSID = %s; Password= %s; Mode= %d", wifi.hostname, wifi.ssid, wifi.passwd, wifi.mode);
+      Serial.println(html_out_buffer); 
+    #endif
+    request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
+    saveWifiConfig(SPIFFS, "/wifi.txt");
+    delay(100);
+    ESP.restart();
+  });
+
   server.on("/initial", HTTP_GET, [](AsyncWebServerRequest *request)
   { 
     memset(html_out_buffer, 0, sizeof html_out_buffer);
@@ -358,16 +400,55 @@ void Web_Tasks(void *pvParameters)
 //start wifi
 void wifi_start()
 {
-  WiFi.mode(WIFI_STA);
-  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-  WiFi.setHostname(hostname.c_str());
-  WiFi.begin(ssid, password);
-  while (WiFi.waitForConnectResult() != WL_CONNECTED)
+  if(fileExists(SPIFFS, "/wifi.txt"))
   {
-    delay(5000);
-    ESP.restart();
+    loadWifiConfig(SPIFFS, "/wifi.txt");
   }
-  Serial.println("WiFi Started");
+  else
+  {
+    strlcpy(wifi.hostname, "Plantomation-Standalone", sizeof(wifi.hostname));
+    strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
+    strlcpy(wifi.passwd, "123456789", sizeof(wifi.passwd));
+    wifi.mode = 0;
+    saveWifiConfig(SPIFFS, "/wifi.txt");
+  }
+
+  if(wifi.mode == 1)
+  {
+    WiFi.mode(WIFI_STA);
+    WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+    WiFi.setHostname(wifi.hostname);
+    WiFi.begin(wifi.ssid, wifi.passwd);
+    delay(2000); //wait 2sec to connect to network
+    //if no connection, make your own network
+    if(!WiFi.isConnected())
+      nowificonfig = 1;
+  }
+
+  if(wifi.mode == 0)
+  {
+    if(nowificonfig)
+    {
+      strlcpy(wifi.hostname, "Plantomation-Standalone", sizeof(wifi.hostname));
+      strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
+      strlcpy(wifi.passwd, "123456789", sizeof(wifi.passwd));
+      wifi.mode = 0;
+    }
+    WiFi.mode(WIFI_AP);
+    delay(250);
+    IPAddress local_IP(4,3,2,1);
+    IPAddress subnet(255,255,255,0);
+    WiFi.softAPConfig(local_IP, INADDR_NONE, subnet);
+    delay(250);
+    WiFi.softAP(wifi.ssid, wifi.passwd);
+    delay(250);
+  }
+
+  Serial.print("WiFi Started - ");
+  if(wifi.mode)
+    Serial.println("Station Mode");
+  else
+    Serial.println("Access Point Mode");
 }
 
 //configure OTA
@@ -398,4 +479,42 @@ void ota_start()
       else if (error == OTA_END_ERROR) Serial.println("End Failed"); });
 
   ArduinoOTA.begin();
+}
+
+
+bool fileExists(fs::FS &fs, const char * path)
+{
+  if(fs.exists(path))
+    return true;
+  else
+    return false;
+}
+
+void loadWifiConfig(fs::FS &fs, const char * path)
+{
+  File file = fs.open(path);
+  StaticJsonDocument<256> doc;
+  DeserializationError error = deserializeJson(doc, file);
+  if (error)
+    Serial.println(F("Failed to read file, using default configuration"));
+  strlcpy(wifi.hostname, doc["hostname"], sizeof(wifi.hostname));
+  strlcpy(wifi.ssid, doc["ssid"], sizeof(wifi.ssid));
+  strlcpy(wifi.passwd, doc["password"], sizeof(wifi.passwd));
+  wifi.mode = doc["mode"];
+}
+
+void saveWifiConfig(fs::FS &fs, const char * path)
+{
+  if(fs.exists(path))
+    fs.remove(path);
+  
+  File file = fs.open(path, FILE_WRITE);
+  StaticJsonDocument<256> doc;
+  doc["hostname"] = wifi.hostname;
+  doc["ssid"] = wifi.ssid;
+  doc["password"] = wifi.passwd;
+  doc["mode"] = wifi.mode;
+
+  serializeJson(doc, file);
+  file.close();
 }

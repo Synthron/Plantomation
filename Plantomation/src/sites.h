@@ -452,12 +452,53 @@ const char CONFIG_page[] PROGMEM = R"=====(
 	</div>
 
 	<div class="card">
-		Debug Boot<br>
-		SD detect: <span id=" sd_detect">true/false</span>
+		<center><h3>New WiFi Config</h3>
+    </center>
+    <form action="wifi_set" method="post">
+      <table>
+        <tr>
+          <td>
+            Wifi-Name:
+          </td>
+          <td>
+            <input type="text" id="ssid" name="ssid" value=""
+					style="background-color: var(--inputbgcolor)"><br>
+          </td>
+          <td>
+            <input type="radio" id="wifimode" , name="wifimode" value="1" checked="checked">
+						<label for="ch4_moist">Station Mode</label><br>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Wifi-Password:
+          </td>
+          <td>
+            <input type="password" id="passwd" name="passwd" value=""
+					style="background-color: var(--inputbgcolor)"><br>
+          </td>
+          <td>
+            <input type="radio" id="wifimode" , name="wifimode" value="0">
+						<label for="ch4_moist">AccesPoint Mode</label><br>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Device Hostname:
+          </td>
+          <td>
+            <input type="text" id="hostname" name="hostname" value="Plantomation"
+					style="background-color: var(--inputbgcolor)"><br>
+          </td>
+        </tr>
+      </table>
+      <center><input type="submit" class="button" value="Save"></center>
+    </form>
 	</div>
 
 	<script>
 		//Call function on Page Load
+		/*
 		document.addEventListener("DOMContentLoaded", function () {
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("GET", "initial", true);
@@ -476,6 +517,7 @@ const char CONFIG_page[] PROGMEM = R"=====(
 
 			xhttp.send();
 		});
+		*/
 	</script>
 </body>
 </html>

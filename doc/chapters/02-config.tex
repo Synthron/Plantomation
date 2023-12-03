@@ -1,0 +1,85 @@
+\chapter{Configuration}
+
+Plantomation mainly uses two XML files for the configuration of the system. 
+\section{config.xml}
+
+The config.xml is the main config file for the operation of the system. It contains all necessary infos on what to do with each channel as well as some general settings. 
+
+\vspace{1cm}
+\begin{tabular}{ll}
+  \begin{minipage}[t]{0.5\textwidth}
+    The filestructure is as follows:
+    \dirtree{%
+.1 config.xml.
+.2 <config>.
+.3 <channels>.
+.4 <channel1>.
+.5 <name>.
+.5 <op-mode>.
+.5 <moisture>.
+.5 <interval\_time>.
+.5 <pump\_time>.
+.5 <log-enable>.
+.4 ..
+.4 ..
+.4 <channel4>.
+.5 <name>.
+.5 <op-mode>.
+.5 <moisture>.
+.5 <interval\_time>.
+.5 <pump\_time>.
+.5 <log-enable>.
+.3 <general>.
+.4 <log-level>.
+.4 <debug-level>.
+.4 <pump\_flow>.
+}
+  \end{minipage}
+  &
+  \begin{minipage}[t]{0.5\textwidth}
+    XML Key Description:
+    \begin{itemize}
+      \item name: Name given to channel/plant
+      \item op-mode:
+      \begin{itemize}
+        \item 0: disabled
+        \item 1: moisture control
+        \item 2: time control
+      \end{itemize}
+      \item moisture: value between 0..100 of moisture sensor range
+      \item interval\_time: duration in-between waterings (time-control mode only)
+      \item pump\_time: duration for which the pump should be active
+      \item log\_enable: 1 enables logging (SD card only)
+      \item log-level:
+      \begin{itemize}
+        \item 0: no logging of events
+        \item 1: only log errors
+        \item 2: log errors and page connections
+      \end{itemize}
+      \item debug-level:
+      \begin{itemize}
+        \item 0: no debug output
+        \item 1: no cyclic debug messages
+        \item 2: all debug messages
+      \end{itemize}
+      \item pump\_flow: flowrate of the pump in ml/min
+    \end{itemize}
+  \end{minipage}
+\end{tabular}
+
+
+\section{wifi.xml}
+
+The wifi.xml contains all information regarding the intended network and mode. 
+
+The filestructure is as follows:
+
+\dirtree{%
+.1 wifi.xml.
+.2 <connection>.
+.3 <mode>.
+.3 <ssid>.
+.3 <passwd>.
+.3 <hostname>.
+.3 <static-ip>.
+}

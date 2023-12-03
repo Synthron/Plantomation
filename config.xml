@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<control>
+  <channel1>
+    <name>Carolina Reaper</name>
+    <op-mode>1</op-mode>
+    <threshold>30</threshold>
+    <log_enable>1</log_enable>
+  </channel1>
+  <channel2>
+    <name>Ceyenne</name>
+    <op-mode>1</op-mode>
+    <threshold>60</threshold>
+    <log_enable>1</log_enable>
+  </channel2>
+  <channel3>
+    <name>Habanero Caribbean Red</name>
+    <op-mode>2</op-mode>
+    <threshold>30</threshold>
+    <log_enable>0</log_enable>
+  </channel3>
+  <channel4>
+    <name></name>
+    <op-mode>0</op-mode>
+    <threshold>0</threshold>
+    <log_enable>1</log_enable>
+  </channel4>
+</control>
