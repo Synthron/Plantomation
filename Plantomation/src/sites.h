@@ -454,6 +454,7 @@ const char CONFIG_page[] PROGMEM = R"=====(
 	<div class="card">
 		<center><h3>New WiFi Config</h3>
     </center>
+		<h4>IMPORTANT: Wifi-Password needs at least 8 characters for AccessPoint!</h4>
     <form action="wifi_set" method="post">
       <table>
         <tr>
