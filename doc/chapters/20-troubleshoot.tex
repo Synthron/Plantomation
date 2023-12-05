@@ -1,0 +1,26 @@
+\chapter{Troubleshooting}
+\section{Spill Sensor}
+If the Spill sensor activated, Plantomation will go into a Lockdown Mode, where all valves will get closed and the pump shut off. 
+
+Additionally, all four LEDs will blink at 1Hz. 
+
+To Reset the alarm, either reset the board or press the ``Boot0''-Button. This will acknowledge the alarm and resume normal operation. Make sure to have dried up the previous spill, otherwise the Lockdown Mode will happen again.
+
+\section{Empty Reservoir Warning}
+If an empty water supply is detected, the LEDs will blink in an alternating pattern. 
+
+If this happens, refill the water reservoir and press the ``Boot0''-Button.
+
+\section{Booting Problems}
+During the Boot-Phase an error can occur halting the module and preventing a successful boot. 
+
+\subsection{Filesystem ERROR}
+In main.cpp, set ``\lstinline{#define FORMAT_SPIFFS_IF_FAILED}'' to \codeword{true} and reupload the code. 
+Then set it to \codeword{false} and reupload the code again. 
+
+This should reset and format the SPIFFS partition to a usable state. 
+
+\subsection{JSON config corrupt}
+This error occurs, when one or more config files from the SD are corrupt, i.e. not in a readable state by the firmware. This can happen due to poor formatting or typos. 
+
+If this is the case, remove the SD-Card and check the files. If the error continues to show up, delete all files from the SD-Card and insert it blank into Plantomation. On first startup, valid files will be created and a default network will be opened. You can then either use the Web-Interface or a local text-editor for changing the config. 

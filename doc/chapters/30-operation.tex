@@ -1,0 +1,28 @@
+\chapter{Operation Description}
+\section{General Operation}
+During booting up, the config files from the SD (if available) are loaded into RAM, checked for integrity and transferred into internal Flash memory. If no SD is available, Configs will be loaded from Flash directly. 
+
+Then the system will be initialized, starting with pin definitions, Wifi-Network and Webserver. 
+
+The webserver and the OTA-handler are allocated on Core0, while the application firmware is running on Core1. This way, the response time of the webserver is not influenced by the application and vice-versa. 
+
+After a successful boot, the application will start running.
+
+If Plantomation is connected to a network with internet access, it will periodically (once per day) synchronize its internal calendar via NTP. This way log files will have the correct time stamps. 
+
+\section{Plant Control}
+Plant control can have 3 modes of operation: disabled, moisture-controlled and time-controlled.
+
+When channels are disabled, they won't do anything. 
+
+\subsection{Moisture Control}
+On Moisture Control, the capacitive Soil Moisture will be read 6 times every 10 minutes with a delay of 10 seconds between measurements. 
+
+The readings will be averaged and compared to the set moisture level. If the level is below the desired value, the valve will be opened and the pump will dispense a set amount of liquid. 
+
+If after 5 cycles the moisture sensor value doesn't change, a ``Water Reservoir Empty''-Error will be triggered and operation will be halted until it gets acknowledged. 
+
+\subsection{Time Control}
+When time controlled, the channel will be activated according to the specified time interval. The pump will then deliver the set amount of water and the valve will close again. 
+
+\section{Calibration}

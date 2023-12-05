@@ -1,43 +1,38 @@
 \chapter{Configuration}
 
-Plantomation mainly uses two XML files for the configuration of the system. 
-\section{config.xml}
+Plantomation mainly uses two json files for the configuration of the system. 
+\section{Channel-Config}
 
-The config.xml is the main config file for the operation of the system. It contains all necessary infos on what to do with each channel as well as some general settings. 
+The config.json is the main config file for the operation of the system. It contains all necessary infos on what to do with each channel as well as some general settings. 
 
 \vspace{1cm}
 \begin{tabular}{ll}
   \begin{minipage}[t]{0.5\textwidth}
     The filestructure is as follows:
     \dirtree{%
-.1 config.xml.
-.2 <config>.
-.3 <channels>.
-.4 <channel1>.
-.5 <name>.
-.5 <op-mode>.
-.5 <moisture>.
-.5 <interval\_time>.
-.5 <pump\_time>.
-.5 <log-enable>.
-.4 ..
-.4 ..
-.4 <channel4>.
-.5 <name>.
-.5 <op-mode>.
-.5 <moisture>.
-.5 <interval\_time>.
-.5 <pump\_time>.
-.5 <log-enable>.
-.3 <general>.
-.4 <log-level>.
-.4 <debug-level>.
-.4 <pump\_flow>.
+.1 plant1.json.
+.2 <name>.
+.2 <op-mode>.
+.2 <moisture>.
+.2 <interval\_time>.
+.2 <pump\_time>.
+.2 <log-enable>.
+}
+\hspace{0.9cm}.\\
+\hspace{0.9cm}.\\
+\dirtree{%
+.1 plant4.json.
+.2 <name>.
+.2 <op-mode>.
+.2 <moisture>.
+.2 <interval\_time>.
+.2 <pump\_time>.
+.2 <log-enable>.
 }
   \end{minipage}
   &
   \begin{minipage}[t]{0.5\textwidth}
-    XML Key Description:
+    json Key Description:
     \begin{itemize}
       \item name: Name given to channel/plant
       \item op-mode:
@@ -50,6 +45,29 @@ The config.xml is the main config file for the operation of the system. It conta
       \item interval\_time: duration in-between waterings (time-control mode only)
       \item pump\_time: duration for which the pump should be active
       \item log\_enable: 1 enables logging (SD card only)
+    \end{itemize}
+  \end{minipage}
+\end{tabular}
+
+\newpage
+\section{Global Config}
+
+The config.json contains all information regarding the operations of the system.  
+
+\begin{tabular}{ll}
+  \begin{minipage}[t]{0.5\textwidth}
+The filestructure is as follows:
+\dirtree{%
+.1 config.json.
+.2 <log-level>.
+.2 <debug-level>.
+.2 <pump\_rate>.
+}
+  \end{minipage}
+  &
+  \begin{minipage}[t]{0.5\textwidth}
+    json Key Description:
+    \begin{itemize}
       \item log-level:
       \begin{itemize}
         \item 0: no logging of events
@@ -62,24 +80,39 @@ The config.xml is the main config file for the operation of the system. It conta
         \item 1: no cyclic debug messages
         \item 2: all debug messages
       \end{itemize}
-      \item pump\_flow: flowrate of the pump in ml/min
+      \item pump\_rate: flowrate of the pump in ml/min
     \end{itemize}
   \end{minipage}
 \end{tabular}
 
+\section{wifi.json}
 
-\section{wifi.xml}
+The wifi.json contains all information regarding the intended network and mode. 
 
-The wifi.xml contains all information regarding the intended network and mode. 
-
+\begin{tabular}{ll}
+  \begin{minipage}[t]{0.5\textwidth}
 The filestructure is as follows:
-
-\dirtree{%
-.1 wifi.xml.
-.2 <connection>.
-.3 <mode>.
-.3 <ssid>.
-.3 <passwd>.
-.3 <hostname>.
-.3 <static-ip>.
+    \dirtree{%
+.1 wifi.json.
+.2 <mode>.
+.2 <ssid>.
+.2 <passwd>.
+.2 <hostname>.
 }
+  \end{minipage}
+  &
+  \begin{minipage}[t]{0.5\textwidth}
+    json Key Description:
+    \begin{itemize}
+      \item mode: 
+      \begin{itemize}
+        \item 0: Access Point Mode
+        \item 1: Station Mode
+      \end{itemize}
+      \item ssid: Name of the WiFi-network
+      \item passwd: Password for the network
+      \item hostname: Hostname of the client
+    \end{itemize}
+  \end{minipage}
+\end{tabular}
+

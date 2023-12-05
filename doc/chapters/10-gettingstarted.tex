@@ -1,0 +1,51 @@
+\chapter{Getting Started}
+\section{Preparing SD-Card}
+If you want to use an SD-Card, format it to FAT32 and create the filestructure layed out in \textbf{\ref{filesystem}. \nameref{filesystem}}. 
+
+You can set the necessary configurations directly before startup with the mentioned JSON files. 
+
+If you don't want to use an SD-Card, skip this step. 
+
+\section{Starting up}
+Now connect the Plantomation-Module to power and let it boot. 
+By observing the LEDs, you can see the status of the module. Each LED is indicating a specific event. These boot messages will be displayed for 3 seconds before operation continues.  
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|}
+  \hline
+  \multirow{3}{4em}{LED 1\\OK/NOK\\System} &
+  \multirow{3}{4em}{LED 2\\OK/NOK\\Wifi} &
+  \multirow{3}{4em}{LED 3\\OK/NOK\\SD} &
+  \multirow{3}{4em}{LED 4\\OK/NOK\\JSON} &
+  \multirow{3}{10em}{Status Description} 
+  \\ &&&&\\&&&&\\
+  \hline \hline
+  0 & 0 & 0 & 0 & Filesystem ERROR - HALT\\\hline
+  0 & 0 & 1 & 0 & JSON config corrupt - HALT\\\hline
+  1 & 0 & 0 & 1 & Boot OK - Wifi config (Flash) failed - use Default\\\hline
+  1 & 0 & 1 & 1 & Boot OK - Wifi config (SD) failed - use Default\\\hline
+  1 & 1 & 0 & 1 & Boot without SD OK\\\hline
+  1 & 1 & 1 & 0 & Boot OK with Default - Empty SD formatted\\\hline
+  1 & 1 & 1 & 1 & Boot with SD OK\\\hline
+
+  
+\end{tabular}
+\end{center}
+
+\section{Wifi-Connection}
+If booting with your custom Wifi-Configuration succeeded, you can now connect to the IP sent out via USB after booting.
+
+If you didn't specify any Wifi-Configuration or the configuration failed, Plantomation will create its own Wireless Network which you can connect to. The ``XX-XX-XX'' is referring to the last three bytes of the ESPs MAC-address.
+
+\begin{tabular}{ll}
+SSID: & Plantomation-XX-XX-XX\\
+Password: & Planto1!\\
+IP-Address: & 4.3.2.1
+\end{tabular}
+
+\section{Configuration}
+After successfully booting, you can now connect to the IP address and visit the ``Configuration''-Tab on the Webinterface. Here you can graphically configure all general settings like channel modes, log levels etc. 
+
+After setting the channel modes, go back to ``Control'' and set up your channels. 
+
+Congratulations, you are now done!.

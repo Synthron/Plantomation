@@ -1,81 +1,4 @@
-#include <Arduino.h>
-#include "tinyxml2.h"
-#include "FS.h"
-#include "SPIFFS.h"
-#include <ArduinoJson.h>
-#include "SD.h"
-#include "SPI.h"
-#include <WiFi.h>
-#include "time.h"
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-
-// OTA
-#include <ESPmDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
-
-// websites
-#include "sites.h"
-
-#define pump 4
-#define detect 16
-#define protect 17
-#define LED1 22
-#define LED2 21
-#define LED3 19
-#define LED4 18
-#define v1 23
-#define v2 25
-#define v3 26
-#define v4 27
-// Sensor Value between 1.5V (in water) and 2.8V (dry air)
-#define s1 34
-#define s2 35
-#define s3 32
-#define s4 33
-#define spill 36
-#define set1 14
-#define set2 13
-// Defines for Webinterface
-#define SYS_OK 0
-#define SYS_SPILL 1
-#define SYS_FAIL 2
-#define SYS_SD 3
-#define SYS_EMPTY 4
-#define SYS_FATAL 255
-
-// #define serial_debug
-
-#define FORMAT_SPIFFS_IF_FAILED false
-
-struct Wifi
-{
-  char hostname[64];
-  char ssid[64];
-  char passwd[64];
-  uint8_t mode;
-};
-
-struct Plant
-{
-  char name[64];
-  uint8_t op_mode = 0;
-  uint8_t moisture = 0;
-  uint32_t interval_time = 0;
-  uint16_t volume = 0;
-  uint8_t log_enable = 0;
-  uint16_t sensor_raw = 0;
-  uint8_t sensor_display = 0;
-};
-
-struct PlantConf
-{
-  uint16_t pumprate = 0;
-  uint8_t debug_level = 0;
-  uint8_t log_level = 0;
-  uint8_t sysstate = 0;
-};
+#include "main.h"
 
 uint8_t nowificonfig = 0;
 Wifi wifi;
@@ -88,18 +11,6 @@ char html_out_buffer[512];
 
 Plant plant1, plant2, plant3, plant4;
 PlantConf pconf;
-
-// put function declarations here:
-void ota_start();
-void wifi_start();
-void Web_Tasks(void *pvParameters);
-void server_handles();
-void page_handles();
-void input_handles();
-void output_handles();
-bool fileExists(fs::FS &fs, const char *path);
-void loadWifiConfig(fs::FS &fs, const char *path);
-void saveWifiConfig(fs::FS &fs, const char *path);
 
 void notFound(AsyncWebServerRequest *request)
 {
@@ -386,7 +297,7 @@ void input_handles()
       Serial.println(html_out_buffer);
 #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
-    saveWifiConfig(SPIFFS, "/wifi.txt");
+    saveWifiConfig(SPIFFS, "/wifi.json");
     delay(100);
     ESP.restart(); });
 }
@@ -556,17 +467,17 @@ void Web_Tasks(void *pvParameters)
 // start wifi
 void wifi_start()
 {
-  if (fileExists(SPIFFS, "/wifi.txt"))
+  if (fileExists(SPIFFS, "/wifi.json"))
   {
-    loadWifiConfig(SPIFFS, "/wifi.txt");
+    loadWifiConfig(SPIFFS, "/wifi.json");
   }
   else
   {
     strlcpy(wifi.hostname, "Plantomation-Standalone", sizeof(wifi.hostname));
     strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
-    strlcpy(wifi.passwd, "123456789", sizeof(wifi.passwd));
+    strlcpy(wifi.passwd, "Planto1!", sizeof(wifi.passwd));
     wifi.mode = 0;
-    saveWifiConfig(SPIFFS, "/wifi.txt");
+    saveWifiConfig(SPIFFS, "/wifi.json");
   }
 
   if (wifi.mode == 1)
@@ -578,7 +489,10 @@ void wifi_start()
     delay(2000); // wait 2sec to connect to network
     // if no connection, make your own network
     if (!WiFi.isConnected())
+    {
+      wifi.mode = 0;
       nowificonfig = 1;
+    }
   }
 
   if (wifi.mode == 0)

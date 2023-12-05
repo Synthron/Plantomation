@@ -15,6 +15,12 @@
 \usepackage{scrhack}
 \usepackage{makecell}
 \usepackage{dirtree}
+\usepackage{multirow}
+\usepackage{listings}
+\lstset{language=C,keywordstyle={\bfseries \color{blue}}}
+\NewDocumentCommand{\codeword}{v}{%
+\texttt{\textcolor{blue}{#1}}%
+}
 \renewcommand{\familydefault}{\sfdefault}
 
 \RedeclareSectionCommands[toclinefill=\TOCLineLeaderFill]{part,chapter}
@@ -65,6 +71,8 @@
 \input{chapters/00-intro.tex}  	
 \input{chapters/01-filesystem.tex}  	
 \input{chapters/02-config.tex}
-
+\input{chapters/10-gettingstarted.tex}
+\input{chapters/20-troubleshoot.tex}
+\input{chapters/30-operation.tex}
 
 \end{document}

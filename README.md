@@ -13,11 +13,11 @@ DIY plant watering system based on ESP32-WROOM32
 ## ToDos
 
 - Documentation
-  - [ ] Config Explanation
-  - [ ] Wifi Management Explanation
+  - [x] Config Explanation
+  - [x] Wifi Management Explanation
   - [ ] UI Explanation
-  - [ ] Control Modes Explanation
-  - [ ] General Mode of Operation Explanation
+  - [x] Control Modes Explanation
+  - [x] General Mode of Operation Explanation
 - PCB
   - [x] Finish Design
   - [x] Order

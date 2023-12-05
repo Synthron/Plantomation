@@ -1,4 +1,5 @@
 \chapter{File System}
+\label{filesystem}
 The SD card is connected via SPI and is necessary for logging and external config. If no SD-Card is present, the internal config will be used, but no logging will be done. The internal config will always be overridden by the externel config at startup if available.
 
 
@@ -8,8 +9,8 @@ File Tree SD-Card:
 \dirtree{%
 .1 /.
 .2 config/.
-.3 control.xml.
-.3 wifi.xml.
+.3 control.json.
+.3 wifi.json.
 .2 log/.
 .3 channel1.log.
 .3 channel2.log.
@@ -22,8 +23,8 @@ File Tree SD-Card:
 File Tree Internal SPIFFS:
 \dirtree{%
 .1 /.
-.2 control.xml.
-.2 wifi.xml.
+.2 control.json.
+.2 wifi.json.
 }
 \end{minipage}
 
@@ -31,13 +32,13 @@ File Tree Internal SPIFFS:
 
 
 \vspace{0.5cm}
-\textbf{control.xml}
+\textbf{control.json}
 
 Contains information about the channels and their operation. Names, humidity thresholds and operation modes (moisture control/time control/disabled) are stored here for the ESP to act upon and to display in the web interface. The log\_enable keys can be used to enable or disable logging for this channel. (SD only)\\
 Default is enabled, errors will always be logged if SD is available. 
 
 \vspace{0.5cm}
-\textbf{wifi.xml}
+\textbf{wifi.json}
 
 Contains all necessary information for wifi-usage, like SSID, password and if the ESP should be in station mode (client inside existing network), or in AccessPoint-Mode (creating its own network). Default is AP-Mode.
 
