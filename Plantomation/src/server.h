@@ -5,8 +5,6 @@
 
 #include "main.h"
 
-TaskHandle_t WebTasks;
-
 void ota_start();
 void wifi_start();
 void Web_Tasks(void *pvParameters);

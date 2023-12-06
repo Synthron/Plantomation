@@ -3,10 +3,6 @@
 #ifndef CLASSES_H
 #define CLASSES_H
 
-class Wifi;
-class Plant;
-class SysConf;
-
 #include <Arduino.h>
 #include "FS.h"
 #include "SPIFFS.h"

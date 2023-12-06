@@ -57,15 +57,16 @@
 #define FORMAT_SPIFFS_IF_FAILED false
 
 //function declarations
+extern TaskHandle_t WebTasks;
 
 AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
 
 //Class Objects
-Wifi wifi;
-Plant plant1, plant2, plant3, plant4;
-SysConf pconf;
+extern Wifi wifi;
+extern Plant plant1, plant2, plant3, plant4;
+extern SysConf pconf;
 
 //variables
 char html_out_buffer[512];
 
-#endif //MAIN_H
+#endif //MAIN_H 
