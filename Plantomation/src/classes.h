@@ -9,7 +9,6 @@
 #include <ArduinoJson.h>
 #include "SD.h"
 #include "SPI.h"
-#include <WiFi.h>
 
 class Wifi
 {

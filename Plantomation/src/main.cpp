@@ -13,7 +13,7 @@ void setup()
   }
   Serial.println("SPIFFS mounted");
 
-  wifi_start();
+  wifi_start(wifi);
 
   ota_start();
   Serial.println("OTA Start");
@@ -67,4 +67,24 @@ void loop()
     plant1.sensor_display++;
   else
     plant1.sensor_display = 0;
+}
+
+
+
+
+// Run OTA and Web Service on different core than main loop
+void Web_Tasks(void *pvParameters)
+{
+  page_handles();
+  input_handles();
+  output_handles();
+
+  server.begin();
+  Serial.println("Webserver Started");
+
+  for (;;)
+  {
+    ArduinoOTA.handle();
+    vTaskDelay(1);
+  }
 }

@@ -1,28 +1,12 @@
 #include "server.h"
 
-// Run OTA and Web Service on different core than main loop
-void Web_Tasks(void *pvParameters)
-{
-  page_handles();
-  input_handles();
-  output_handles();
-
-  server.begin();
-  Serial.println("Webserver Started");
-
-  for (;;)
-  {
-    ArduinoOTA.handle();
-    vTaskDelay(1);
-  }
-}
 
 // start wifi
-void wifi_start()
+void wifi_start(Wifi wifi)
 {
-  if (fileExists(SPIFFS, "/wifi.json"))
+  if (fileExists(SPIFFS, "/wifi.txt"))
   {
-    wifi.load_config(SPIFFS, "/wifi.json");
+    wifi.load_config(SPIFFS, "/wifi.txt");
   }
   else
   {

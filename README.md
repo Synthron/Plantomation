@@ -29,7 +29,7 @@ DIY plant watering system based on ESP32-WROOM32
     - [x] Multi-Page working
     - [x] Main-Page with all necessary information
     - [ ] Config page
-    - [ ] About page
+    - [x] About page
   - Backend
     - [x] Wifi Management
     - [ ] File Management
@@ -37,6 +37,7 @@ DIY plant watering system based on ESP32-WROOM32
       - [ ] SD Card (preferred if available)
     - [ ] Implement Setup via Webpage
       - [x] Channels
+      - [x] WiFi
       - [ ] General Config
       - [ ] Debug
       - [ ] Sensor calibration

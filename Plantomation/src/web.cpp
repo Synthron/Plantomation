@@ -36,7 +36,7 @@ void page_handles()
 
 void input_handles()
 {
-  server.on("/ch1", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/ch1", HTTP_GET, [&](AsyncWebServerRequest *request)
             {
     if(request->hasParam("hume1"))
     {
@@ -55,15 +55,15 @@ void input_handles()
       plant1.volume = request->getParam("vol1")->value().toInt();
     }
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
       plant1.name, plant1.moisture, plant1.op_mode, plant1.interval_time, plant1.volume);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); 
   });
 
-  server.on("/ch2", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/ch2", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     if(request->hasParam("hume2"))
     {
@@ -82,15 +82,15 @@ void input_handles()
       plant2.volume = request->getParam("vol2")->value().toInt();
     }
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
       plant2.name, plant2.moisture, plant2.op_mode, plant2.interval_time, plant2.volume);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
   #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); 
   });
 
-  server.on("/ch3", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/ch3", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     if(request->hasParam("hume3"))
     {
@@ -109,15 +109,15 @@ void input_handles()
       plant3.volume = request->getParam("vol3")->value().toInt();
     }
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
       plant3.name, plant3.moisture, plant3.op_mode, plant3.interval_time, plant3.volume);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); 
   });
 
-  server.on("/ch4", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/ch4", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     if(request->hasParam("hume4"))
     {
@@ -136,15 +136,15 @@ void input_handles()
       plant4.volume = request->getParam("vol4")->value().toInt();
     }
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "%s: Humidity: %d; State: %d; Interval: %d; Volume: %d", 
       plant4.name, plant4.moisture, plant4.op_mode, plant4.interval_time, plant4.volume);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); 
   });
 
-  server.on("/modes", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/modes", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     if(request->hasParam("ch1_mode"))
     {
@@ -164,14 +164,14 @@ void input_handles()
     }
 
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "mode1: %d, mode2: %d, mode3: %d, mode4: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "mode1: %d, mode2: %d, mode3: %d, mode4: %d", 
       plant1.op_mode, plant2.op_mode, plant3.op_mode, plant4.op_mode);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); });
 
-  server.on("/sysconf", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/sysconf", HTTP_GET, [&](AsyncWebServerRequest *request)
             {
     if(request->hasParam("pumprate"))
     {
@@ -179,15 +179,15 @@ void input_handles()
     }
 
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "Pumprate: %d", 
+      char string_buffer[512];
+      sprintf(string_buffer, "Pumprate: %d", 
       pconf.pumprate);
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>"); 
   });
 
-  server.on("/wifi_set", HTTP_POST, [](AsyncWebServerRequest *request)
+  server.on("/wifi_set", HTTP_POST, [&](AsyncWebServerRequest *request)
   {
     if(request->hasParam("ssid"))
     {
@@ -206,9 +206,9 @@ void input_handles()
       wifi.mode = request->getParam("wifimode")->value().toInt();
     }
     #ifdef serial_debug
-      memset(html_out_buffer, 0, sizeof html_out_buffer);
-      sprintf(html_out_buffer, "Hostname = %s; SSID = %s; Password= %s; Mode= %d", wifi.hostname, wifi.ssid, wifi.passwd, wifi.mode);
-      Serial.println(html_out_buffer);
+      char string_buffer[512];
+      sprintf(string_buffer, "Hostname = %s; SSID = %s; Password= %s; Mode= %d", wifi.hostname, wifi.ssid, wifi.passwd, wifi.mode);
+      Serial.println(string_buffer);
     #endif
     request->send(200, "text/html", "<!DOCTYPE html><html><head></head><body><script>close();</script></body></html>");
     wifi.save_config(SPIFFS, "/wifi.json");
@@ -219,9 +219,9 @@ void input_handles()
 
 void output_handles()
 {
-  server.on("/initial", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/initial", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
-    memset(html_out_buffer, 0, sizeof html_out_buffer);
+    char string_buffer[512];
 
     StaticJsonDocument<512> doc;
     // moisture values
@@ -250,16 +250,16 @@ void output_handles()
     doc["vol3"] = plant3.volume;
     doc["vol4"] = plant4.volume;
 
-    serializeJson(doc, html_out_buffer);
+    serializeJson(doc, string_buffer);
 
-    request->send_P(200, "application/json", html_out_buffer);
+    request->send_P(200, "application/json", string_buffer);
     #ifdef serial_debug
       Serial.print("Initial Value Request: ");
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
   });
 
-  server.on("/conf", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/conf", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     String statestring;
     String statecolor;
@@ -291,7 +291,7 @@ void output_handles()
       statecolor = "crimson";
       break;
     }
-    memset(html_out_buffer, 0, sizeof html_out_buffer);
+    char string_buffer[512];
 
     StaticJsonDocument<512> doc;
     // System values
@@ -304,15 +304,15 @@ void output_handles()
     doc["mode3"] = plant3.op_mode;
     doc["mode4"] = plant4.op_mode;
 
-    serializeJson(doc, html_out_buffer);
-    request->send_P(200, "application/json", html_out_buffer);
+    serializeJson(doc, string_buffer);
+    request->send_P(200, "application/json", string_buffer);
     #ifdef serial_debug
       Serial.print("Config Values: ");
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
   });
 
-  server.on("/cyclic", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/cyclic", HTTP_GET, [&](AsyncWebServerRequest *request)
   {
     String statestring;
     String statecolor;
@@ -344,8 +344,7 @@ void output_handles()
       statecolor = "crimson";
       break;
     }
-
-    memset(html_out_buffer, 0, sizeof html_out_buffer);
+    char string_buffer[512];
 
     StaticJsonDocument<512> doc;
     // System values
@@ -358,12 +357,12 @@ void output_handles()
     doc["ADCValue3"] = plant3.sensor_display;
     doc["ADCValue4"] = plant4.sensor_display;
 
-    serializeJson(doc, html_out_buffer);
+    serializeJson(doc, string_buffer);
 
-    request->send_P(200, "application/json", html_out_buffer);
+    request->send_P(200, "application/json", string_buffer);
     #ifdef serial_debug
       Serial.print("Cyclic Value Update: ");
-      Serial.println(html_out_buffer);
+      Serial.println(string_buffer);
     #endif
   });
 }
