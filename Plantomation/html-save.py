@@ -21,15 +21,15 @@ f.close()
 os.remove(path_header)
 f = open(path_header, "w")
 
-f.write("const char MAIN_page[] PROGMEM = R\"=====(\n")
+f.write("const char MAIN_page[] = R\"=====(\n")
 f.write(content_main)
 f.write(")=====\";\n\n")
 
-f.write("const char CONFIG_page[] PROGMEM = R\"=====(\n")
+f.write("const char CONFIG_page[] = R\"=====(\n")
 f.write(content_config)
 f.write(")=====\";\n\n")
 
-f.write("const char ABOUT_page[] PROGMEM = R\"=====(\n")
+f.write("const char ABOUT_page[] = R\"=====(\n")
 f.write(content_about)
 f.write(")=====\";")
 

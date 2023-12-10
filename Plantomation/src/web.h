@@ -1,3 +1,13 @@
+/**
+ * 
+ * web.h and web.cpp are support files containing all handles 
+ * for the webinterface. 
+ * These are divided into 3 categories: 
+ * -  page handles (load pages)
+ * -  input handles (getting data from web to controller)
+ * -  ouput handles (getting data from controller to web)
+ * 
+*/
 #pragma once
 
 #ifndef WEB_H
@@ -11,6 +21,7 @@
 #include "classes.h"
 #include "sites.h"
 #include "config.h"
+#include "html/pictures.h"
 
 //Class Objects
 extern Wifi wifi;

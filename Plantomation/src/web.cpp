@@ -32,6 +32,10 @@ void page_handles()
       Serial.println("Load About Page");
     #endif
     });
+
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "image/x-icon", favicon, favicon_len);
+  });
 }
 
 void input_handles()

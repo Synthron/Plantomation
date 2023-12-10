@@ -1,3 +1,12 @@
+/**
+ * 
+ * Global config file for Plantomation
+ * 
+ * Pin Definitions, Label definitions and 
+ * Compile-Options like debug and resetting the SPIFFS
+ * 
+*/
+
 #pragma once
 
 #ifndef CONFIG_H

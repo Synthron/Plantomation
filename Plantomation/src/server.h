@@ -1,3 +1,13 @@
+/**
+ * 
+ * server.h and server.cpp are the support files for handling 
+ * OTA and the webserver. Both processes are running on Core0
+ * of the ESP32, thus leaving Core1 for the application of 
+ * Plantonmation. This helps spreading out the load and
+ * will make the website response as soon as possible.
+ * 
+*/
+
 #pragma once
 
 #ifndef SERVER_H

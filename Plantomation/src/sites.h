@@ -1,4 +1,4 @@
-const char MAIN_page[] PROGMEM = R"=====(
+const char MAIN_page[] = R"=====(
 <!DOCTYPE html>
 <html>
 
@@ -378,7 +378,7 @@ const char MAIN_page[] PROGMEM = R"=====(
 
 </html>)=====";
 
-const char CONFIG_page[] PROGMEM = R"=====(
+const char CONFIG_page[] = R"=====(
 <!DOCTYPE html>
 <html>
 <head>
@@ -661,7 +661,7 @@ const char CONFIG_page[] PROGMEM = R"=====(
 </body>
 </html>)=====";
 
-const char ABOUT_page[] PROGMEM = R"=====(
+const char ABOUT_page[] = R"=====(
 <!DOCTYPE html>
 <html>
 

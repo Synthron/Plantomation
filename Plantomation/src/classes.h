@@ -1,3 +1,10 @@
+/**
+ * 
+ * The classes.h and classes.cpp files contain all the 
+ * class definitions for the project. 
+ * 
+*/
+
 #pragma once
 
 #ifndef CLASSES_H
