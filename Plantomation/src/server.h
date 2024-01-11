@@ -14,6 +14,7 @@
 #define SERVER_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "FS.h"
 #include "SPIFFS.h"
 #include <ArduinoJson.h>
@@ -30,9 +31,18 @@
 #include <ArduinoOTA.h>
 
 #include "classes.h"
+#include "config.h"
 
 void ota_start();
-void wifi_start(Wifi wifi);
+void wifi_start(Wifi wifi, fs::FS &filesystem);
 bool fileExists(fs::FS &fs, const char *path);
+
+extern bool sd_en;
+extern char s_wifi[20];
+extern char s_system[22];
+extern char s_plant1[20];
+extern char s_plant2[20];
+extern char s_plant3[20];
+extern char s_plant4[20];
 
 #endif

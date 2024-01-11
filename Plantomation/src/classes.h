@@ -40,6 +40,7 @@ class Plant
     uint8_t log_enable;
     uint16_t sensor_raw;
     uint8_t sensor_display;
+    bool interval_ready;
 
     void load_config(fs::FS &fs, const char *path);
     void save_config(fs::FS &fs, const char *path);

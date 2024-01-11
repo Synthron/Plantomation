@@ -21,34 +21,34 @@ DIY plant watering system based on ESP32-WROOM32
 - PCB
   - [x] Finish Design
   - [x] Order
-  - [ ] Assemble
-  - [ ] Test
+  - [x] Assemble
+  - [x] Test
 - Firmware
   - Frontend
     - [x] Ajax working
     - [x] Multi-Page working
     - [x] Main-Page with all necessary information
-    - [ ] Config page
+    - [x] Config page
     - [x] About page
   - Backend
     - [x] Wifi Management
-    - [ ] File Management
+    - [x] File Management
       - [x] SPIFFS
-      - [ ] SD Card (preferred if available)
+      - [x] SD Card (preferred if available)
     - [ ] Implement Setup via Webpage
       - [x] Channels
       - [x] WiFi
-      - [ ] General Config
-      - [ ] Debug
+      - [x] General Config
+      - [x] Debug
       - [ ] Sensor calibration
     - [x] Objects for channels
     - [x] Config object
     - [x] Wifi object
-    - [ ] implement sensor read
+    - [x] implement sensor read
     - [ ] implement spill detection
-    - [ ] implement Moisture Control
-    - [ ] implement Time Control (timers)
+    - [x] implement Moisture Control
+    - [x] implement Time Control (timers)
     - [ ] implement internal water volume counter
     - [ ] implement low-water-alarm
-    - [ ] Debug-Levels
-    - [ ] Log-Levels
+    - [x] Debug-Levels
+    - [x] Log-Levels

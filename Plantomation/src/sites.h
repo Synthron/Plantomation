@@ -161,7 +161,7 @@ const char MAIN_page[] = R"=====(
         </div>
         <br>
 				Current Moisture: <b><span id="ADCValue1">0</span> </b>%<br><br>
-				<input type="submit" class="button" value="Save">
+				<center><input type="submit" class="button" value="Save"></center>
 			</form>
 		</div>
 		
@@ -194,7 +194,7 @@ const char MAIN_page[] = R"=====(
         </div>
         <br>
 				Current Moisture: <b><span id="ADCValue2">0</span> </b>%<br><br>
-				<input type="submit" class="button" value="Save">
+				<center><input type="submit" class="button" value="Save"></center>
 			</form>
 		</div>
 
@@ -227,7 +227,7 @@ const char MAIN_page[] = R"=====(
         </div>
         <br>
 				Current Moisture: <b><span id="ADCValue3">0</span> </b>%<br><br>
-				<input type="submit" class="button" value="Save">
+				<center><input type="submit" class="button" value="Save"></center>
 			</form>
 		</div>
 
@@ -260,7 +260,7 @@ const char MAIN_page[] = R"=====(
         </div>
         <br>
 				Current Moisture: <b><span id="ADCValue4">0</span> </b>%<br><br>
-				<input type="submit" class="button" value="Save">
+				<center><input type="submit" class="button" value="Save"></center>
 			</form>
 		</div>
 	</main>
@@ -541,8 +541,36 @@ const char CONFIG_page[] = R"=====(
 	<div class="card">
 		<center><h3>System Config</h3></center>
 		<form action="sysconf" target="_blank">
-			Pump rate [ml/min]: 
-			<input type="text" id="pumprate" name="pumprate" style="background-color: var(--inputbgcolor)" value=""><br>
+			<table>
+				<tr>
+					<td>Pump rate [ml/min]: </td>
+					<td><input type="text" id="pumprate" name="pumprate" style="background-color: var(--inputbgcolor); width: 50px;" value=""></td>
+				</tr>
+				<tr>
+					<td>Log Level  (SD Only)</td>
+					<td>|
+						<input type="radio" id="loglevel0" , name="loglevel" value="0" checked="checked">
+						<label for="loglevel0">None</label> |
+					</td><td>
+						<input type="radio" id="loglevel1" , name="loglevel" value="1">
+						<label for="loglevel1">Events</label> |
+					</td><td>
+						<input type="radio" id="loglevel2" , name="loglevel" value="2">
+						<label for="loglevel2">All</label> |
+					</td>
+				<tr>
+					<td>Debug Level (USB)</td>
+					<td>|
+						<input type="radio" id="debuglevel0" , name="debuglevel" value="0" checked="checked">
+						<label for="debuglevel0">None</label> |
+										</td><td>
+						<input type="radio" id="debuglevel1" , name="debuglevel" value="1">
+						<label for="debuglevel1">Actions</label> |
+					</td><td>
+						<input type="radio" id="debuglevel2" , name="debuglevel" value="2">
+						<label for="debuglevel2">All</label> |
+					</td>				</tr>
+			</table>
 			<center><input type="submit" class="button" value="Save"></center>
 		</form>
 	</div>
@@ -562,8 +590,8 @@ const char CONFIG_page[] = R"=====(
 					style="background-color: var(--inputbgcolor)"><br>
           </td>
           <td>
-            <input type="radio" id="wifimode" , name="wifimode" value="1" checked="checked">
-						<label for="ch4_moist">Station Mode</label><br>
+            <input type="radio" id="wifimode1" , name="wifimode" value="1" checked="checked">
+						<label for="wifimode1">Station Mode</label><br>
           </td>
         </tr>
         <tr>
@@ -575,8 +603,8 @@ const char CONFIG_page[] = R"=====(
 					style="background-color: var(--inputbgcolor)"><br>
           </td>
           <td>
-            <input type="radio" id="wifimode" , name="wifimode" value="0">
-						<label for="ch4_moist">AccesPoint Mode</label><br>
+            <input type="radio" id="wifimode0" , name="wifimode" value="0">
+						<label for="wifimode0">AccesPoint Mode</label><br>
           </td>
         </tr>
         <tr>
@@ -607,6 +635,30 @@ const char CONFIG_page[] = R"=====(
 					document.getElementById("system").style.color = data.systemcolor;
 					document.getElementById("pumprate").value = data.pumprate;
 					
+					switch (data.debug) {
+						case 0:
+							document.getElementById("debuglevel0").checked = true;
+							break;
+						case 1:
+							document.getElementById("debuglevel1").checked = true;
+							break;
+						case 2:
+							document.getElementById("debuglevel2").checked = true;
+							break;
+					}
+
+					switch (data.log) {
+						case 0:
+							document.getElementById("loglevel0").checked = true;
+							break;
+						case 1:
+							document.getElementById("loglevel1").checked = true;
+							break;
+						case 2:
+							document.getElementById("loglevel2").checked = true;
+							break;
+					}
+
 					switch (data.mode1) {
 						case 0:
 							document.getElementById("ch1_disable").checked = true;

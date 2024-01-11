@@ -2,11 +2,13 @@
 
 
 // start wifi
-void wifi_start(Wifi wifi)
+void wifi_start(Wifi wifi, fs::FS &filesystem)
 {
-  if (fileExists(SPIFFS, "/wifi.txt"))
+  
+
+  if (fileExists(filesystem, s_wifi))
   {
-    wifi.load_config(SPIFFS, "/wifi.txt");
+    wifi.load_config(filesystem, s_wifi);
   }
   else
   {
@@ -29,11 +31,14 @@ void wifi_start(Wifi wifi)
 
   if (wifi.mode == 0)
   {
-
-    strlcpy(wifi.hostname, "Plantomation-Standalone", sizeof(wifi.hostname));
+    String mac = "";
+    mac = WiFi.macAddress().c_str();
+    mac.replace(":", "-");
+    char buffer[64];
+    sprintf(buffer, "Plantomation-%s", mac.substring(9, 17));
+    strlcpy(wifi.hostname, buffer, sizeof(wifi.hostname));
     strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
     strlcpy(wifi.passwd, "Planto1!", sizeof(wifi.passwd));
-    wifi.mode = 0;
     WiFi.mode(WIFI_AP);
     delay(250);
     IPAddress local_IP(4, 3, 2, 1);

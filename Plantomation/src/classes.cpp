@@ -15,7 +15,7 @@ void Wifi::load_config(fs::FS &fs, const char *path)
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error)
-      Serial.println(F("Failed to read file"));
+      Serial.println("Failed to read file");
     else{
       strlcpy(hostname, doc["hostname"], sizeof(hostname));
       strlcpy(ssid, doc["ssid"], sizeof(ssid));
@@ -55,14 +55,14 @@ void Plant::load_config(fs::FS &fs, const char *path)
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error)
-      Serial.println(F("Failed to read file"));
+      Serial.println("Failed to read file");
     else{
       strlcpy(name, doc["name"], sizeof(name));
       op_mode = doc["op_mode"];
       moisture = doc["moisture"];
       interval_time = doc["interval_time"];
       volume = doc["volume"];
-      log_enable = doc["log_enagle"];
+      log_enable = doc["log_enable"];
     } 
   }  
 }
@@ -78,7 +78,10 @@ void Plant::save_config(fs::FS &fs, const char *path)
   doc["moisture"] = moisture;
   doc["interval_time"] = interval_time;
   doc["volume"] = volume;
-  doc["log_enagle"] = log_enable;
+  doc["log_enable"] = log_enable;
+
+  serializeJson(doc, file);
+  file.close();
 }
 
 /*
@@ -95,7 +98,7 @@ void SysConf::load_config(fs::FS &fs, const char *path)
     StaticJsonDocument<256> doc;
     DeserializationError error = deserializeJson(doc, file);
     if (error)
-      Serial.println(F("Failed to read file"));
+      Serial.println("Failed to read file");
     else{
       pumprate = doc["pumprate"];
       debug_level = doc["debug_level"];
