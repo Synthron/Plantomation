@@ -36,8 +36,8 @@ void wifi_start(Wifi wifi, fs::FS &filesystem)
     mac.replace(":", "-");
     char buffer[64];
     sprintf(buffer, "Plantomation-%s", mac.substring(9, 17));
-    strlcpy(wifi.hostname, buffer, sizeof(wifi.hostname));
-    strlcpy(wifi.ssid, "Plantomation", sizeof(wifi.ssid));
+    strlcpy(wifi.hostname, "Plantomation", sizeof(wifi.hostname));
+    strlcpy(wifi.ssid, buffer, sizeof(wifi.ssid));
     strlcpy(wifi.passwd, "Planto1!", sizeof(wifi.passwd));
     WiFi.mode(WIFI_AP);
     delay(250);
