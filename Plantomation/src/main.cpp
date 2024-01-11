@@ -100,6 +100,9 @@ void setup()
     wifi_start(wifi, SPIFFS);
   }
 
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
   if(WiFi.getMode() == WIFI_STA)
   {
     Serial.println("Update Time Data");
@@ -120,8 +123,6 @@ void setup()
 
   ota_start();
   Serial.println("OTA Start");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 
   
   delay(500);
