@@ -53,6 +53,7 @@ class SysConf
     uint8_t debug_level;
     uint8_t log_level;
     uint8_t sysstate;
+    uint16_t spill_raw;
     void load_config(fs::FS &fs, const char *path);
     void save_config(fs::FS &fs, const char *path);
 };

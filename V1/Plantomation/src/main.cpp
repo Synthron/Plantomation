@@ -1,5 +1,35 @@
 #include "main.h"
 
+AsyncWebServer server(80); // Object of WebServer(HTTP port, 80 is defult)
+
+//Class Objects
+Wifi wifi;
+Plant plant1, plant2, plant3, plant4;
+SysConf pconf;
+
+TaskHandle_t WebTasks;
+struct tm timeinfo;
+
+//variables
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 0;
+
+bool sd_en;
+char s_wifi[20];
+char s_system[22];
+char s_plant1[20];
+char s_plant2[20];
+char s_plant3[20];
+char s_plant4[20];
+
+bool spill_indicator = false;
+
+hw_timer_t *Timer_Channel1 = NULL;
+hw_timer_t *Timer_Channel2 = NULL;
+hw_timer_t *Timer_Channel3 = NULL;
+hw_timer_t *Timer_Channel4 = NULL;
 
 void setup()
 {
@@ -16,6 +46,7 @@ void setup()
   pinMode(v2, OUTPUT);
   pinMode(v3, OUTPUT);
   pinMode(v4, OUTPUT);
+  pinMode(39, INPUT_PULLDOWN);
 
   digitalWrite(LED1, HIGH);
   digitalWrite(LED2, HIGH);
@@ -82,6 +113,7 @@ void setup()
     plant2.load_config(SD, sd_plant2_conf);
     plant3.load_config(SD, sd_plant3_conf);
     plant4.load_config(SD, sd_plant4_conf);
+    copy_configs();
     wifi_start(wifi, SD);
   }
   else
@@ -92,11 +124,11 @@ void setup()
     strlcpy(s_plant2, spiffs_plant2_conf, sizeof(s_plant2));
     strlcpy(s_plant3, spiffs_plant3_conf, sizeof(s_plant3));
     strlcpy(s_plant4, spiffs_plant4_conf, sizeof(s_plant4));
-    pconf.load_config(SPIFFS, sd_system_conf);
-    plant1.load_config(SPIFFS, sd_plant1_conf);
-    plant2.load_config(SPIFFS, sd_plant2_conf);
-    plant3.load_config(SPIFFS, sd_plant3_conf);
-    plant4.load_config(SPIFFS, sd_plant4_conf);
+    pconf.load_config(SPIFFS, spiffs_system_conf);
+    plant1.load_config(SPIFFS, spiffs_plant1_conf);
+    plant2.load_config(SPIFFS, spiffs_plant2_conf);
+    plant3.load_config(SPIFFS, spiffs_plant3_conf);
+    plant4.load_config(SPIFFS, spiffs_plant4_conf);
     wifi_start(wifi, SPIFFS);
   }
 
@@ -146,40 +178,51 @@ void loop()
 {
   sensor_update();
 
-  handle_channel(plant1, v1, sd_plant1_logs);
-  handle_channel(plant2, v2, sd_plant2_logs);
-  handle_channel(plant3, v3, sd_plant3_logs);
-  handle_channel(plant4, v4, sd_plant4_logs);
-
+  if(!SYS_SPILL)
+  {
+    handle_channel(plant1, v1, sd_plant1_logs);
+    handle_channel(plant2, v2, sd_plant2_logs);
+    handle_channel(plant3, v3, sd_plant3_logs);
+    handle_channel(plant4, v4, sd_plant4_logs);
+  }
   delay(1000);
 }
 
-void log_moisture_info(Plant p_obj, char *path, uint8_t log_sort)
+void copy_configs()
+{
+   pconf.save_config(SPIFFS, spiffs_system_conf);
+  plant1.save_config(SPIFFS, spiffs_plant1_conf);
+  plant2.save_config(SPIFFS, spiffs_plant2_conf);
+  plant3.save_config(SPIFFS, spiffs_plant3_conf);
+  plant4.save_config(SPIFFS, spiffs_plant4_conf);
+}
+
+void log_moisture_info(Plant p_obj, const char *path, uint8_t log_sort)
 {
   if(pconf.log_level == 2 && sd_en)
   {
     getLocalTime(&timeinfo);
     char buf[200];
-    if(log_sort == 0)
+    switch (log_sort)
     {
-      sprintf(buf, "%d-%d-%d;%d:%d:%d;Moisture Sensor Value; %d\%", 
+    case 0: //log moisture sensor data
+      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Moisture Sensor Value; %d\%", 
       timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       p_obj.sensor_display);
-    }
-    else if(log_sort == 1)
-    {
-      sprintf(buf, "%d-%d-%d;%d:%d:%d;watered for seconds; %d", 
+      break;
+    case 1: //log watering for time
+      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;watered for seconds; %d", 
       timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       watering_time);
-    }
-    else if(log_sort == 2)
-    {
-      sprintf(buf, "%d-%d-%d;%d:%d:%d;watered with volume; %d;ml", 
+      break;
+    case 2: //log watering for amount
+      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;watered with volume; %d;ml", 
       timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       p_obj.volume);
+      break;
     }
     
     File file = SD.open(path, FILE_APPEND);
@@ -188,7 +231,31 @@ void log_moisture_info(Plant p_obj, char *path, uint8_t log_sort)
   }
 }
 
-void handle_channel(Plant p_obj, uint8_t valve, char *logpath)
+void log_event(uint8_t event)
+{
+  getLocalTime(&timeinfo);
+  char buf[200];
+  if(event == 0)
+  {
+    sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Spillage detected", 
+    timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+    timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    File file = SD.open(sd_events_logs, FILE_APPEND);
+    file.println(buf);
+    file.close();
+  }
+  else if(event == 1)
+  {
+    sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Spillage cleared", 
+    timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+    timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    File file = SD.open(sd_events_logs, FILE_APPEND);
+    file.println(buf);
+    file.close();
+  }
+}
+
+void handle_channel(Plant p_obj, uint8_t valve, const char *logpath)
 {
 
   if(p_obj.op_mode == 1) //moisture
@@ -237,11 +304,26 @@ void sensor_update()
     plant4.sensor_display = 100-((plant4.sensor_raw - moist_wet)/moist_degree);
     log_moisture_info(plant4, sd_plant4_logs, 0);
   }
-  
+
+  pconf.spill_raw = read_sensor(spill);
+
+  if(pconf.spill_raw >= 200 && !spill_indicator)
+  {
+    spill_indicator = true;
+    pconf.sysstate = SYS_SPILL;
+    log_event(0);
+  }
+  else if(pconf.spill_raw < 200 && spill_indicator)
+  {
+    spill_indicator = false;
+    pconf.sysstate = SYS_OK;
+    log_event(1);
+  }
+
   char buf[128];
   if(pconf.debug_level > 0)
   {
-    sprintf(buf, "Raw :: S1: %d, S2: %d, S3: %d, S4: %d", plant1.sensor_raw, plant2.sensor_raw, plant3.sensor_raw, plant4.sensor_raw);
+    sprintf(buf, "Raw :: S1: %d, S2: %d, S3: %d, S4: %d, Spill: %d", plant1.sensor_raw, plant2.sensor_raw, plant3.sensor_raw, plant4.sensor_raw, pconf.spill_raw);
     Serial.println(buf);
     sprintf(buf, "100 :: S1: %d, S2: %d, S3: %d, S4: %d", plant1.sensor_display, plant2.sensor_display, plant3.sensor_display, plant4.sensor_display);
     Serial.println(buf);

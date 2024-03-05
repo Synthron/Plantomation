@@ -46,24 +46,24 @@
 #define samplecount 10
 
 //file paths
-#define spiffs_wifi_conf "/wifi.json"
-#define spiffs_system_conf "/control.json"
-#define spiffs_plant1_conf "/plant1.json"
-#define spiffs_plant2_conf "/plant2.json"
-#define spiffs_plant3_conf "/plant3.json"
-#define spiffs_plant4_conf "/plant4.json"
+const char spiffs_wifi_conf[11] = "/wifi.json";
+const char spiffs_system_conf[14] = "/control.json";
+const char spiffs_plant1_conf[13] = "/plant1.json";
+const char spiffs_plant2_conf[13] = "/plant2.json";
+const char spiffs_plant3_conf[13] = "/plant3.json";
+const char spiffs_plant4_conf[13] = "/plant4.json";
 
-#define sd_wifi_conf "/config/wifi.json"
-#define sd_system_conf "/config/control.json"
-#define sd_plant1_conf "/config/plant1.json"
-#define sd_plant2_conf "/config/plant2.json"
-#define sd_plant3_conf "/config/plant3.json"
-#define sd_plant4_conf "/config/plant4.json"
-#define sd_plant1_logs "/log/plant1.log"
-#define sd_plant2_logs "/log/plant2.log"
-#define sd_plant3_logs "/log/plant3.log"
-#define sd_plant4_logs "/log/plant4.log"
-#define sd_events_logs "/log/events.log"
+const char sd_wifi_conf[18] = "/config/wifi.json";
+const char sd_system_conf[21] = "/config/control.json";
+const char sd_plant1_conf[20] = "/config/plant1.json";
+const char sd_plant2_conf[20] = "/config/plant2.json";
+const char sd_plant3_conf[20] = "/config/plant3.json";
+const char sd_plant4_conf[20] = "/config/plant4.json";
+const char sd_plant1_logs[16] = "/log/plant1.log";
+const char sd_plant2_logs[16] = "/log/plant2.log";
+const char sd_plant3_logs[16] = "/log/plant3.log";
+const char sd_plant4_logs[16] = "/log/plant4.log";
+const char sd_events_logs[16] = "/log/events.log";
 
 #define watering_time 5
 
