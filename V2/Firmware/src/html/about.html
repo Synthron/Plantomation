@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Plantomation</title>
+
+	<style type="text/css">
+		:root {
+			--bgcolor: #b48346;
+			--cardbgcolor: #9bde36;
+			--cardbordercolor: green;
+			--cardtextcolor: navy;
+			--buttonbgcolor: #04aa07;
+			--buttontextcolor: white;
+			--titlecolor: blue;
+			--inputbgcolor: lightgreen;
+			--rangescalecolor: black;
+		}
+
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			background-color: var(--bgcolor);
+		}
+
+		.card {
+			flex: 0 0 200px;
+			border-radius: 20px;
+			border: 1px solid var(--cardbordercolor);
+			min-width: 280px;
+			/* min-height: 280px;*/
+			background: var(--cardbgcolor);
+			padding: 15px;
+			box-sizing: border-box;
+			color: var(--cardtextcolor);
+			margin: 10px;
+			box-shadow: 0px 2px 18px -4px rgba(0, 0, 0, 0.75);
+		}
+
+		ul {
+			list-style-type: none;
+			border-radius: 15px;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			border: 1px solid var(--cardbordercolor);
+			background-color: var(--cardbgcolor);
+		}
+
+		li {
+			float: left;
+		}
+
+		li a {
+			display: block;
+			color: #666;
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+		}
+
+		li a:hover:not(.active) {
+			background-color: var(--inputbgcolor);
+		}
+
+		li a.active {
+			color: white;
+			background-color: var(--buttonbgcolor);
+		}
+	</style>
+
+</head>
+
+<body>
+	<center>
+		<h1 style="color: var(--titlecolor);">
+			Plantomation Interface
+		</h1>
+
+	</center>
+
+	<ul>
+		<li><a href="/">Control</a></li>
+		<li><a href="/config">Configuration</a></li>
+		<li><a class="active" href="/about">About</a></li>
+	</ul>
+
+	<div class="card">
+		<center><h2>About Plantomation</h2></center>
+		<p>Plantomation is a plant watering system designed by Synthron (me) with great help from the "Freie Maker" community on Discord.</p>
+    <hr>
+    <p>The idea came to be from a friend of mine who wanted to build a "smart flower pot". Initially I was supposed to make the hardware while he does the software, but pretty quickly he opted out for personal reasons.</p>
+    <p>After a while I reanimated the project, updated the schematic and made a PCB for it. The Design choice for 4 channels was more of a coincidence and pin-constraint than educated thought.</p>
+    <p>After sharing the project on the Discord community "Freie Maker", a few keen people jumped right aboard with me and helped me develop the code, made suggestions for features and especially helped me with the front-end. So thank you all for that!</p>
+    <p>All code, documentations and designs can be found at:</p>
+    <a href="https://www.github.com/Synthron/Plantomation" style="margin-left: 20px;">GitHub</a>
+	</div>
+</body>
+</html>
