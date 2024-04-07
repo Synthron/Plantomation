@@ -147,7 +147,9 @@ const char MAIN_page[] = R"=====(
           <input type="range" id="hume1" name="hume1" list="values" />
           <datalist id="values">
             <option value="0" label="dry"></option>
+			<option value="25"></option>
             <option value="50" label="mid"></option>
+			<option value="75"></option>
             <option value="100" label="wet"></option>
           </datalist><br>
         </div>
@@ -180,7 +182,9 @@ const char MAIN_page[] = R"=====(
           <input type="range" id="hume2" name="hume2" list="values" />
           <datalist id="values">
             <option value="0" label="dry"></option>
+			<option value="25"></option>
             <option value="50" label="mid"></option>
+			<option value="75"></option>
             <option value="100" label="wet"></option>
           </datalist><br>
         </div>
@@ -213,7 +217,9 @@ const char MAIN_page[] = R"=====(
           <input type="range" id="hume3" name="hume3" list="values" />
           <datalist id="values">
             <option value="0" label="dry"></option>
+			<option value="25"></option>
             <option value="50" label="mid"></option>
+			<option value="75"></option>
             <option value="100" label="wet"></option>
           </datalist><br>
         </div>
@@ -246,7 +252,9 @@ const char MAIN_page[] = R"=====(
           <input type="range" id="hume4" name="hume4" list="values" />
           <datalist id="values">
             <option value="0" label="dry"></option>
+			<option value="25"></option>
             <option value="50" label="mid"></option>
+			<option value="75"></option>
             <option value="100" label="wet"></option>
           </datalist><br>
         </div>

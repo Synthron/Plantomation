@@ -31,6 +31,8 @@ hw_timer_t *Timer_Channel2 = NULL;
 hw_timer_t *Timer_Channel3 = NULL;
 hw_timer_t *Timer_Channel4 = NULL;
 
+uint8_t maincounter = 0;
+
 void setup()
 {
 
@@ -98,6 +100,7 @@ void setup()
     }
     Serial.println("SD Mounted");
   }
+  else Serial.println("no SD detected!");
 
   Serial.println("Setup WiFi");
   if(sd_en)
@@ -177,15 +180,20 @@ void setup()
 void loop()
 {
   sensor_update();
-
-  if(!SYS_SPILL)
+  
+  if(maincounter > 100)
   {
-    handle_channel(plant1, v1, sd_plant1_logs);
-    handle_channel(plant2, v2, sd_plant2_logs);
-    handle_channel(plant3, v3, sd_plant3_logs);
-    handle_channel(plant4, v4, sd_plant4_logs);
+    if(!(pconf.sysstate == SYS_SPILL))
+    {
+      handle_channel(plant1, v1, sd_plant1_logs);
+      handle_channel(plant2, v2, sd_plant2_logs);
+      handle_channel(plant3, v3, sd_plant3_logs);
+      handle_channel(plant4, v4, sd_plant4_logs);
+    }
+    maincounter = 0;
   }
-  delay(1000);
+  maincounter++;
+  
 }
 
 void copy_configs()
@@ -206,23 +214,27 @@ void log_moisture_info(Plant p_obj, const char *path, uint8_t log_sort)
     switch (log_sort)
     {
     case 0: //log moisture sensor data
-      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Moisture Sensor Value; %d\%", 
-      timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+      sprintf(buf, "%4d-%02d-%02d;%02d:%02d:%02d;Moisture Sensor Value; %d\%", 
+      timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       p_obj.sensor_display);
       break;
     case 1: //log watering for time
-      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;watered for seconds; %d", 
-      timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+      sprintf(buf, "%4d-%02d-%02d;%02d:%02d:%02d;watered for seconds; %d", 
+      timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       watering_time);
       break;
     case 2: //log watering for amount
-      sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;watered with volume; %d;ml", 
-      timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+      sprintf(buf, "%4d-%02d-%02d;%02d:%02d:%02d;watered with volume; %d;ml", 
+      timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, 
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec, 
       p_obj.volume);
       break;
+    }
+    if(pconf.debug_level > 0)
+    {
+      Serial.println(buf);
     }
     
     File file = SD.open(path, FILE_APPEND);
@@ -238,7 +250,7 @@ void log_event(uint8_t event)
   if(event == 0)
   {
     sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Spillage detected", 
-    timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+    timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, 
     timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
     File file = SD.open(sd_events_logs, FILE_APPEND);
     file.println(buf);
@@ -247,7 +259,7 @@ void log_event(uint8_t event)
   else if(event == 1)
   {
     sprintf(buf, "%4d-%2d-%2d;%2d:%2d:%2d;Spillage cleared", 
-    timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, 
+    timeinfo.tm_year+1900, timeinfo.tm_mon+1, timeinfo.tm_mday, 
     timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
     File file = SD.open(sd_events_logs, FILE_APPEND);
     file.println(buf);
@@ -275,6 +287,14 @@ void handle_channel(Plant p_obj, uint8_t valve, const char *logpath)
       log_moisture_info(plant1, logpath, 2);
     }
   }
+
+  if(pconf.debug_level > 0)
+    {
+      char string_buffer[512];
+      sprintf(string_buffer, "%s: Humidity: %d; Sensor: %d; Mode: %d; Interval: %d; Volume: %d", 
+      p_obj.name, p_obj.moisture, p_obj.sensor_display, p_obj.op_mode, p_obj.interval_time, p_obj.volume);
+      Serial.println(string_buffer);
+    }
 }
 
 void sensor_update()
