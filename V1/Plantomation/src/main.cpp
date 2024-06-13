@@ -180,7 +180,7 @@ void setup()
 void loop()
 {
   sensor_update();
-  
+
   if(maincounter > 100)
   {
     if(!(pconf.sysstate == SYS_SPILL))
@@ -306,19 +306,19 @@ void sensor_update()
     plant1.sensor_display = 100-((plant1.sensor_raw - moist_wet)/moist_degree);
     log_moisture_info(plant1, sd_plant1_logs, 0);
   }
-  if(plant1.op_mode == 1)
+  if(plant2.op_mode == 1)
   {
     plant2.sensor_raw = read_sensor(s2);
     plant2.sensor_display = 100-((plant2.sensor_raw - moist_wet)/moist_degree);
     log_moisture_info(plant2, sd_plant2_logs, 0);
   }
-  if(plant1.op_mode == 1)
+  if(plant3.op_mode == 1)
   {
     plant3.sensor_raw = read_sensor(s3);
     plant3.sensor_display = 100-((plant3.sensor_raw - moist_wet)/moist_degree);
     log_moisture_info(plant3, sd_plant3_logs, 0);
   }
-  if(plant1.op_mode == 1)
+  if(plant4.op_mode == 1)
   {
     plant4.sensor_raw = read_sensor(s4);
     plant4.sensor_display = 100-((plant4.sensor_raw - moist_wet)/moist_degree);
