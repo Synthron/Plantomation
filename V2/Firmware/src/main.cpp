@@ -19,6 +19,7 @@ void loop() {
   {
     ch_shift.set_ch(_t);
     ch_shift.set_pump(_t%2+1);
+    ch_shift.set_state(_t%2+1);
     ch_shift.update();
     delay(1000);
     ch_shift.set_ch(0);

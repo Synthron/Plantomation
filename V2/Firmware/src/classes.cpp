@@ -6,10 +6,11 @@ void channels::set_ch(uint8_t channel)
         ch = 0;
     else if(channel <= 12)
     {
-        ch = 0x1000;
+        ch = 0x0001;
         for(uint8_t i = 0; i < channel; i++)
-            ch = ch >> 1;
+            ch = ch << 1;
     }
+    ch = ch >> 1;
 }
 
 void channels::set_pump(uint8_t pump)
@@ -59,8 +60,8 @@ void channels::update(void)
     data[1] = s1;
     for(uint8_t c = 0; c < 12; c++)
         data[c+2] = (ch >> c) & 0x0001;
-    data[14] = p0;
-    data[15] = p1;
+    data[14] = p1;
+    data[15] = p0;
 
     for(uint8_t i = 0; i < 16; i++)
     {
